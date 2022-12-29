@@ -20,6 +20,10 @@ void App::draw() {
     SETCOLOR(br.fill_color, 0.18f, 0.23f, 0.29f);
     br.fill_opacity = 1.0f;
     graphics::drawRect(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
+
+    for (auto w : m_widgets) {
+        w->draw();
+    }
 }
 
 void App::update() {
@@ -35,10 +39,19 @@ void App::update() {
 }
 
 void App::init() {
+    Sidebar* s = new Sidebar();
+    m_widgets.push_front((Widget*) s);
+    s->setPosX(CANVAS_WIDTH/12.0f);
+    s->setPosY(CANVAS_HEIGHT/2.0f);
+
     graphics::preloadBitmaps(ASSET_PATH);
 }
 
 App::~App() {
+    for (auto w : m_widgets) {
+        delete w;
+    }
+    m_widgets.clear();
 }
 
 App* App::getInstance() {
