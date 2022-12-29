@@ -1,6 +1,7 @@
 #include "sgg/graphics.h"
 #include "defines.h"
 #include "app.h"
+#include "movies.h"
 
 void draw() {
     App* myapp = App::getInstance();
@@ -14,6 +15,7 @@ void update(float ms) {
 
 int main(int argc, char** argv) {
     graphics::createWindow(1400, 800, "MovieBox v0.1");
+    graphics::setFullScreen(true);
 
     App* app = App::getInstance();
 

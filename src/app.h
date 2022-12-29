@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
-#include "widget.h"
+#include "widgets.h"
+#include "moviedb.h"
 
 class App {
 public:
@@ -10,15 +11,23 @@ protected:
 
     std::list<Widget*> m_widgets;
     app_state_t m_state = STATE_INIT;
+    std::string m_screen = "Home";
+    std::string m_prev_screen;
+    Movie* m_cur_movie = nullptr;
 
     App() {}
 public:
     void draw();
     void update();
     void init();
+    void setScreen(std::string s) { m_prev_screen = m_screen; m_screen = s; }
+    std::string getScreen() { return m_screen; }
+    std::string getPrevScreen() { return m_prev_screen; }
+    void setMovie(Movie* m) { m_cur_movie = m; }
+    Movie* getMovie() { return m_cur_movie; }
 
     ~App();
 
-    static void releaseInstance() { if (m_instance) delete m_instance; m_instance = nullptr; }
+    static void releaseInstance() { if (m_instance) {delete m_instance;} m_instance = nullptr; DB()->releaseInstance();}
     static App* getInstance();
 };
