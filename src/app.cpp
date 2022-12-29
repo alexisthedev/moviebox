@@ -17,7 +17,7 @@ void App::draw() {
     }
 
     // draw background
-    SETCOLOR(br.fill_color, 0.18f, 0.23f, 0.29f);
+    SETCOLOR(br.fill_color, 0.03f, 0.04f, 0.12f);
     br.fill_opacity = 1.0f;
     graphics::drawRect(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
@@ -36,6 +36,10 @@ void App::update() {
         m_state = STATE_IDLE;
         return;
     }
+
+    for (auto w : m_widgets) {
+        w->update();
+    }
 }
 
 void App::init() {
@@ -43,6 +47,7 @@ void App::init() {
     m_widgets.push_front((Widget*) s);
     s->setPosX(CANVAS_WIDTH/12.0f);
     s->setPosY(CANVAS_HEIGHT/2.0f);
+    s->init();
 
     graphics::preloadBitmaps(ASSET_PATH);
 }
