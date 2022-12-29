@@ -31,7 +31,15 @@
 *.out
 *.app
 
+# Visual Studio & Visual Studio Code
+.vs/
 .vscode/
+*.sln
+*.vcxproj
+*.vcxproj.*
+x64/
+
+# Build files
 bin/*
 !bin/assets/
 misc/
