@@ -1,6 +1,6 @@
 #pragma once
 #include <list>
-#include "widget.h"
+#include "widgets.h"
 
 class App {
 public:
