@@ -10,12 +10,15 @@ protected:
 
     std::list<Widget*> m_widgets;
     app_state_t m_state = STATE_INIT;
+    std::string m_screen = "Home";
 
     App() {}
 public:
     void draw();
     void update();
     void init();
+    void setScreen(std::string s) { m_screen = s; }
+    std::string getScreen() { return m_screen; }
 
     ~App();
 

@@ -28,6 +28,7 @@ protected:
 
 public:
     void setText(std::string text) { m_text = text; }
+    std::string getText() { return m_text; }
     void setHighlight(bool h) { m_highlighted = h; }
     bool contains(float x, float y);
     Button() {}
@@ -58,4 +59,14 @@ public:
     void init();
     Sidebar();
     ~Sidebar();
+};
+
+/* Screen Widgets */
+
+class InfoScreen : public Widget {
+public:
+    void draw();
+    void update();
+    InfoScreen() {}
+    ~InfoScreen() {}
 };

@@ -46,8 +46,13 @@ void Sidebar::update() {
 
     // Activate button
     if (ms.button_left_pressed && cur_button) {
+        if (cur_button->getText() == "Log Out") {
+            graphics::stopMessageLoop();
+        }
+
         m_active_button = cur_button;
         m_active_button->setActive(true);
+        APP()->setScreen(m_active_button->getText());
         for (auto b : m_buttons) {
             if (b != m_active_button) {
                 b->setActive(false);
@@ -141,7 +146,6 @@ void SidebarButton::draw() {
 }
 
 void SidebarButton::update() {
-
 
 }
 
