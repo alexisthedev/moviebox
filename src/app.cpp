@@ -49,6 +49,12 @@ void App::init() {
     s->setPosY(CANVAS_HEIGHT/2.0f);
     s->init();
 
+    HomeScreen* h = new HomeScreen();
+    m_widgets.push_front((Widget*) h);
+    h->setPosX(CANVAS_WIDTH * 7.0f/12.0f);
+    h->setPosY(CANVAS_HEIGHT/2.0f);
+    h->init();
+
     InfoScreen* i = new InfoScreen();
     m_widgets.push_front((Widget*) i);
     i->setPosX(CANVAS_WIDTH * 7.0f/12.0f);

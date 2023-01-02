@@ -63,10 +63,30 @@ public:
 
 /* Screen Widgets */
 
+class HomeScreen : public Widget {
+    std::list<Widget*> m_widgets;
+public:
+    void draw();
+    void update();
+    void init();
+    HomeScreen() {}
+    ~HomeScreen() {}
+};
+
 class InfoScreen : public Widget {
 public:
     void draw();
     void update();
     InfoScreen() {}
     ~InfoScreen() {}
+};
+
+/* Home Screen Widget */
+
+class Slideshow : public Widget {
+public:
+    void draw();
+    void update();
+    Slideshow() {}
+    ~Slideshow() {}
 };
