@@ -24,15 +24,33 @@ void HomeScreen::init() {
     m_widgets.push_back((Widget*) s);
     s->setPosX(m_pos[0]);
     s->setPosY(CANVAS_HEIGHT/4.0f);
+    s->init();
 }
 
 void Slideshow::draw() {
-
     // Draw slideshow banner pic
     graphics::Brush br;
     br.fill_opacity = 1.0f;
     br.outline_opacity = 0.0f;
-    br.texture = ASSET_PATH + std::string("bpwf.png");
+
+    switch (m_slide) {
+        case 1:
+            br.texture = ASSET_PATH + std::string("bpwf.png");
+            break;
+        case 2:
+            SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
+            break;
+        case 3:
+            SETCOLOR(br.fill_color, 0.0f, 1.0f, 0.0f);
+            break;
+        case 4:
+            SETCOLOR(br.fill_color, 0.0f, 0.0f, 1.0f);
+            break;
+        default:
+            SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
+            break;
+    }
+
     SETCOLOR(br.fill_secondary_color, 0.03f, 0.04f, 0.12f);
     br.fill_secondary_opacity = 1.0f;
     br.gradient = true;
@@ -40,15 +58,10 @@ void Slideshow::draw() {
     br.gradient_dir_v = 1.0f;
     graphics::drawRect(m_pos[0], m_pos[1], CANVAS_WIDTH * 5.0f/8.0f, 6.5f, br);
 
-    // Draw slideshow left and right buttons
-    br.fill_secondary_opacity = 0.0f;
-    br.gradient = false;
-    SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
-    br.texture = ASSET_PATH + std::string("left.png");
-    graphics::drawRect(m_pos[0] - 1.5f - CANVAS_WIDTH * 5.0f/16.0f, m_pos[1], 1.0f, 1.0f, br);
-
-    br.texture = ASSET_PATH + std::string("right.png");
-    graphics::drawRect(m_pos[0] + 1.5f + CANVAS_WIDTH * 5.0f/16.0f, m_pos[1], 1.0f, 1.0f, br);
+    // Draw slideshow buttons
+    for (auto b : m_buttons) {
+        b->draw();
+    }
 }
 
 void Slideshow::update() {
@@ -59,6 +72,69 @@ void Slideshow::update() {
     // Convert mouse cords to canvas cords
     float mx = graphics::windowToCanvasX(ms.cur_pos_x);
     float my = graphics::windowToCanvasY(ms.cur_pos_y);
+
+    // Highlight button
+    SlideshowButton* cur_button = nullptr;
+    for (auto b : m_buttons) {
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
+        } else {
+            b->setHighlight(false);
+        }
+    }
+
+    // Change to next or prev slide
+    if (ms.button_left_pressed && cur_button) {
+        if (cur_button->getText() == "Left") {
+            m_slide = m_slide<=1 ? 4 : m_slide-1;
+        } else {
+            m_slide = m_slide>=4 ? 1 : m_slide+1;
+        }
+    }
+
+    // Call update on dependent members: buttons
+    for (auto b : m_buttons) {
+        b->update();
+    }
+}
+
+void Slideshow::init() {
+    SlideshowButton* l = new SlideshowButton();
+    m_buttons.push_front(l);
+    l->setText("Left");
+    l->setIcon(ASSET_PATH + std::string("left.png"));
+    l->setPosX(m_pos[0] - 1.5f - CANVAS_WIDTH * 5.0f/16.0f);
+    l->setPosY(m_pos[1]);
+
+    SlideshowButton* r = new SlideshowButton();
+    m_buttons.push_front(r);
+    r->setText("Right");
+    r->setIcon(ASSET_PATH + std::string("right.png"));
+    r->setPosX(m_pos[0] + 1.5f + CANVAS_WIDTH * 5.0f/16.0f);
+    r->setPosY(m_pos[1]);
+}
+
+void SlideshowButton::draw() {
+    graphics::Brush br;
+    br.fill_opacity = 1.0f;
+    br.outline_opacity = 0.0f;
+    br.texture = m_icon;
+
+    if (m_highlighted) {
+        SETCOLOR(br.fill_color, 1.0f, 0.54f, .0f);
+    } else {
+        SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    }
+    graphics::drawRect(m_pos[0], m_pos[1], 1.0f, 1.0f, br);
+}
+
+void SlideshowButton::update() {
+
+}
+
+bool SlideshowButton::contains(float x, float y) {
+    return x < m_pos[0] + 0.5f && x > m_pos[0] - 0.5f && y > m_pos[1] - 0.5f && y < m_pos[1] + 0.5f;
 }
 
 
