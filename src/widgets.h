@@ -35,15 +35,28 @@ public:
 
 };
 
-class SidebarButton : public Button {
+class IconButton : public Button {
+protected:
     std::string m_icon;
     bool m_active = false;
 
 public:
-    void draw();
-    void update();
     void setActive(bool a) { m_active = a; }
     void setIcon(std::string icon) { m_icon = icon; }
+    virtual bool contains(float x, float y) = 0;
+};
+
+class SidebarButton : public IconButton {
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+};
+
+class SlideshowButton : public IconButton {
+public:
+    void draw();
+    void update();
     bool contains(float x, float y);
 };
 
@@ -84,9 +97,12 @@ public:
 /* Home Screen Widget */
 
 class Slideshow : public Widget {
+    std::list<SlideshowButton*> m_buttons;
+    int m_slide = 1;
 public:
     void draw();
     void update();
+    void init();
     Slideshow() {}
     ~Slideshow() {}
 };
