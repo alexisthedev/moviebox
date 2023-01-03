@@ -155,9 +155,25 @@ void InfoScreen::draw() {
     graphics::drawRect(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f, CANVAS_HEIGHT/2.0f - 2.0f, 4.0f, 4.0f, br);
 
     // Draw contact info
+    br.outline_opacity = 0.0f;
     graphics::setFont(ASSET_PATH + std::string("MontserratMedium.ttf"));
-    graphics::drawText(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.1f, CANVAS_HEIGHT/2.0f + 2.0f, 0.45f, "Alex    Papadopoulos", br);
-    graphics::drawText(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.0f, CANVAS_HEIGHT/2.0f + 2.0f, 0.45f, "Katerina    Mantaraki", br);
+    graphics::drawText(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.1f, CANVAS_HEIGHT/2.0f + 1.5f, 0.45f, "Alex    Papadopoulos", br);
+    graphics::drawText(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.0f, CANVAS_HEIGHT/2.0f + 1.5f, 0.45f, "Katerina    Mantaraki", br);
+
+    // Draw Social Media
+    br.texture = ASSET_PATH + std::string("linkedin.png");
+    graphics::drawRect(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.55f, CANVAS_HEIGHT/2.0f + 3.0f, 0.6f, 0.6f, br);
+    graphics::drawRect(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.45f, CANVAS_HEIGHT/2.0f + 3.0f, 0.6f, 0.6f, br);
+
+    graphics::drawText(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.1f, CANVAS_HEIGHT/2.0f + 3.15f, 0.35f, "linkedin.com/in/alexiospap", br);
+    graphics::drawText(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.0f, CANVAS_HEIGHT/2.0f + 3.15f, 0.35f, "linkedin.com/in/katerinamant", br);
+
+    br.texture = ASSET_PATH + std::string("github.png");
+    graphics::drawRect(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.55f, CANVAS_HEIGHT/2.0f + 4.0f, 0.75f, 0.75f, br);
+    graphics::drawRect(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.45f, CANVAS_HEIGHT/2.0f + 4.0f, 0.75f, 0.75f, br);
+
+    graphics::drawText(m_pos[0] - CANVAS_WIDTH * 5.0f/24.0f - 2.1f, CANVAS_HEIGHT/2.0f + 4.15f, 0.35f, "github.com/alexisthedev", br);
+    graphics::drawText(m_pos[0] + CANVAS_WIDTH * 5.0f/24.0f - 2.0f, CANVAS_HEIGHT/2.0f + 4.15f, 0.35f, "github.com/katerinamant", br);
 }
 
 void InfoScreen::update() {
