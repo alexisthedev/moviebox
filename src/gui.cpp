@@ -6,6 +6,11 @@
 void HomeScreen::draw() {
     if (APP()->getScreen() != "Home") return;
 
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 1.2f, 0.5f, "New Releases", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 5.45f, 0.5f, "Popular", br);
+
     for (auto w : m_widgets) {
         w->draw();
     }
@@ -25,7 +30,33 @@ void HomeScreen::init() {
     s->setPosX(m_pos[0]);
     s->setPosY(CANVAS_HEIGHT/4.0f);
     s->init();
+
+    for (int i=0; i<2; i++) {
+        for (int j=0; j<5; j++) {
+            MovieWidget* m = new MovieWidget();
+            m_widgets.push_back((Widget*) m);
+
+            // TODO import movies with pictures
+            Movie* temp = new Movie();
+            temp->setImage("sw.png");
+            m->setMovie(temp);
+            // --------------------------------
+
+            m->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 2.0f + (4.0f + 5.0/9.0f)*j);
+            m->setPosY((s->getPosY()+3.25f) + 2.75f + 4.25*i);
+            m->init();
+        }
+    }
 }
+
+HomeScreen::~HomeScreen() {
+    for (auto w : m_widgets) {
+        delete w;
+    }
+    m_widgets.clear();
+}
+
+/* Slide Show */
 
 void Slideshow::draw() {
     // Draw slideshow banner pic
@@ -115,6 +146,16 @@ void Slideshow::init() {
     r->setPosY(m_pos[1]);
 }
 
+Slideshow::~Slideshow() {
+    for (auto b : m_buttons) {
+        delete b;
+    }
+    m_buttons.clear();
+}
+
+
+/* Slideshow Buttons */
+
 void SlideshowButton::draw() {
     graphics::Brush br;
     br.fill_opacity = 1.0f;
@@ -135,6 +176,24 @@ void SlideshowButton::update() {
 
 bool SlideshowButton::contains(float x, float y) {
     return x < m_pos[0] + 0.5f && x > m_pos[0] - 0.5f && y > m_pos[1] - 0.5f && y < m_pos[1] + 0.5f;
+}
+
+
+/* Movie Widget */
+
+void MovieWidget::draw() {
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+    br.texture = m_movie->getImg();
+    graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
+}
+
+void MovieWidget::update() {
+
+}
+
+void MovieWidget::init() {
+
 }
 
 

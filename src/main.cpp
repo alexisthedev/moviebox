@@ -1,6 +1,7 @@
 #include "sgg/graphics.h"
 #include "defines.h"
 #include "app.h"
+#include "movies.h"
 
 void draw() {
     App* myapp = App::getInstance();

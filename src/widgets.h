@@ -1,6 +1,8 @@
+#pragma once
 #include "sgg/graphics.h"
 #include <string>
 #include <list>
+#include "movies.h"
 
 class Widget {
 protected:
@@ -30,9 +32,7 @@ public:
     void setText(std::string text) { m_text = text; }
     std::string getText() { return m_text; }
     void setHighlight(bool h) { m_highlighted = h; }
-    bool contains(float x, float y);
-    Button() {}
-
+    virtual bool contains(float x, float y) = 0;
 };
 
 class IconButton : public Button {
@@ -43,7 +43,7 @@ protected:
 public:
     void setActive(bool a) { m_active = a; }
     void setIcon(std::string icon) { m_icon = icon; }
-    virtual bool contains(float x, float y) = 0;
+    IconButton() {}
 };
 
 class SidebarButton : public IconButton {
@@ -83,7 +83,7 @@ public:
     void update();
     void init();
     HomeScreen() {}
-    ~HomeScreen() {}
+    ~HomeScreen();
 };
 
 class InfoScreen : public Widget {
@@ -104,5 +104,20 @@ public:
     void update();
     void init();
     Slideshow() {}
-    ~Slideshow() {}
+    ~Slideshow();
+};
+
+/* Movie Widgets */
+
+class MovieWidget : public Widget {
+// The widget for movies shown in the home and browse screens
+public:
+    Movie* m_movie = nullptr;
+    void draw();
+    void update();
+    void init();
+    MovieWidget() {}
+    ~MovieWidget() {}
+
+    void setMovie(Movie* m) { m_movie = m; }
 };
