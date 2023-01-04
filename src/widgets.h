@@ -60,6 +60,16 @@ public:
     bool contains(float x, float y);
 };
 
+class MovieButton : public IconButton {
+    Movie* m_movie = nullptr;
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+    void setMovie(Movie* m) { m_movie = m; m_icon = m_movie->getImg(); }
+    Movie* getMovie() { return m_movie; }
+};
+
 /* Sidebar */
 
 class Sidebar : public Widget {
@@ -78,6 +88,9 @@ public:
 
 class HomeScreen : public Widget {
     std::list<Widget*> m_widgets;
+    std::list<MovieButton*> m_buttons;
+    MovieButton* m_active_button = nullptr;
+
 public:
     void draw();
     void update();
@@ -94,30 +107,27 @@ public:
     ~InfoScreen() {}
 };
 
+class MovieScreen : public Widget {
+    std::list<SlideshowButton*> m_buttons;
+
+public:
+    void draw();
+    void update();
+    void init();
+    MovieScreen() {}
+    ~MovieScreen();
+};
+
 /* Home Screen Widget */
 
 class Slideshow : public Widget {
     std::list<SlideshowButton*> m_buttons;
     int m_slide = 1;
+
 public:
     void draw();
     void update();
     void init();
     Slideshow() {}
     ~Slideshow();
-};
-
-/* Movie Widgets */
-
-class MovieWidget : public Widget {
-// The widget for movies shown in the home and browse screens
-public:
-    Movie* m_movie = nullptr;
-    void draw();
-    void update();
-    void init();
-    MovieWidget() {}
-    ~MovieWidget() {}
-
-    void setMovie(Movie* m) { m_movie = m; }
 };

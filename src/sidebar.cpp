@@ -2,6 +2,8 @@
 #include "app.h"
 
 void Sidebar::draw() {
+    if (APP()->getScreen() == "Movie") return;
+
     // draw sidebar rectangle
     graphics::Brush br;
     SETCOLOR(br.fill_color, 0.08f, 0.12f, 0.20f);
@@ -25,6 +27,8 @@ void Sidebar::draw() {
 }
 
 void Sidebar::update() {
+    if (APP()->getScreen() == "Movie") return;
+
     // Get mouse position
     graphics::MouseState ms;
     graphics::getMouseState(ms);

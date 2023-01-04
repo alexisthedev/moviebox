@@ -60,7 +60,14 @@ void App::init() {
     i->setPosX(CANVAS_WIDTH * 7.0f/12.0f);
     i->setPosY(CANVAS_HEIGHT/2.0f);
 
+    MovieScreen* m = new MovieScreen();
+    m_widgets.push_front((Widget*) m);
+    m->setPosX(CANVAS_WIDTH/2.0f);
+    m->setPosY(CANVAS_HEIGHT/2.0f);
+    m->init();
+
     graphics::preloadBitmaps(ASSET_PATH);
+    graphics::preloadBitmaps(MOVIE_PATH);
 }
 
 App::~App() {
