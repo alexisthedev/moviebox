@@ -13,6 +13,7 @@ inline void sleep(int ms) {
 #define CANVAS_HEIGHT 16.0f
 
 #define ASSET_PATH "assets/"
+#define MOVIE_PATH "assets/movies/"
 
 #define SETCOLOR(c, r, g, b) {c[0]=r; c[1]=g; c[2]=b;}
 #define RAND0TO1() (rand()/(float)RAND_MAX)

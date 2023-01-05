@@ -14,10 +14,46 @@ void HomeScreen::draw() {
     for (auto w : m_widgets) {
         w->draw();
     }
+
+    if (m_active_button) {
+        APP()->setScreen("Movie");
+        APP()->setMovie(m_active_button->getMovie());
+    }
+    m_active_button = nullptr;
 }
 
 void HomeScreen::update() {
     if (APP()->getScreen() != "Home") return;
+
+    // Get mouse position
+    graphics::MouseState ms;
+    graphics::getMouseState(ms);
+
+    // Convert mouse cords to canvas cords
+    float mx = graphics::windowToCanvasX(ms.cur_pos_x);
+    float my = graphics::windowToCanvasY(ms.cur_pos_y);
+
+    // Highlight button
+    MovieButton* cur_button = nullptr;
+    for (auto b : m_buttons) {
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
+        } else {
+            b->setHighlight(false);
+        }
+    }
+
+    // Activate movie
+    if (ms.button_left_pressed && cur_button) {
+        m_active_button = cur_button;
+        m_active_button->setActive(true);
+        for (auto b : m_buttons) {
+            if (b != m_active_button) {
+                b->setActive(false);
+            }
+        }
+    }
 
     for (auto w : m_widgets) {
         w->update();
@@ -33,18 +69,17 @@ void HomeScreen::init() {
 
     for (int i=0; i<2; i++) {
         for (int j=0; j<5; j++) {
-            MovieWidget* m = new MovieWidget();
+            MovieButton* m = new MovieButton();
             m_widgets.push_back((Widget*) m);
+            m_buttons.push_back(m);
 
             // TODO import movies with pictures
-            Movie* temp = new Movie();
-            temp->setImage("sw.png");
+            Movie* temp = new Movie("Star Wars", 1980, {"George Lucas"}, {"Mark Hamill"}, "Space Opera", "Galaxy far far away", "sw");
             m->setMovie(temp);
             // --------------------------------
 
             m->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 2.0f + (4.0f + 5.0/9.0f)*j);
             m->setPosY((s->getPosY()+3.25f) + 2.75f + 4.25*i);
-            m->init();
         }
     }
 }
@@ -66,7 +101,7 @@ void Slideshow::draw() {
 
     switch (m_slide) {
         case 1:
-            br.texture = ASSET_PATH + std::string("bpwf.png");
+            br.texture = MOVIE_PATH + std::string("bpwf.png");
             break;
         case 2:
             SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
@@ -181,19 +216,27 @@ bool SlideshowButton::contains(float x, float y) {
 
 /* Movie Widget */
 
-void MovieWidget::draw() {
+void MovieButton::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
     br.texture = m_movie->getImg();
     graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
+
+    if (m_highlighted) {
+        graphics::Brush reticle;
+        reticle.outline_opacity = 0.0f;
+        SETCOLOR(reticle.fill_color, 0.0f, 0.0f, 0.0f);
+        reticle.fill_opacity = 0.4f;
+        graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, reticle);
+    }
 }
 
-void MovieWidget::update() {
+void MovieButton::update() {
 
 }
 
-void MovieWidget::init() {
-
+bool MovieButton::contains(float x, float y) {
+    return m_pos[0] - 2.0f <= x && x <= m_pos[0] + 2.0f && m_pos[1] - 1.25f <= y && y <= m_pos[1] + 1.25f;
 }
 
 
@@ -237,4 +280,80 @@ void InfoScreen::draw() {
 
 void InfoScreen::update() {
     if (APP()->getScreen() != "Info") return;
+}
+
+/* Movie Screen */
+
+void MovieScreen::draw() {
+    if (APP()->getScreen() != "Movie") return;
+
+    Movie* m = APP()->getMovie();
+
+    // Draw movie details
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+
+    // Draw movie banner
+    br.texture = m->getBanner();
+    graphics::drawRect(m_pos[0], m_pos[1]/4.0f, CANVAS_WIDTH, CANVAS_HEIGHT/4.0f, br);
+
+    graphics::drawText(m_pos[0], m_pos[1], 0.6f, m->getTitle(), br);
+    SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
+
+    for (auto b : m_buttons) {
+        b->draw();
+    }
+}
+
+void MovieScreen::update() {
+    // Get mouse position
+    graphics::MouseState ms;
+    graphics::getMouseState(ms);
+
+    // Convert mouse cords to canvas cords
+    float mx = graphics::windowToCanvasX(ms.cur_pos_x);
+    float my = graphics::windowToCanvasY(ms.cur_pos_y);
+
+    // Highlight button
+    SlideshowButton* cur_button = nullptr;
+    for (auto b : m_buttons) {
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
+        } else {
+            b->setHighlight(false);
+        }
+    }
+
+    // Change to next or prev slide
+    if (ms.button_left_pressed && cur_button) {
+        if (cur_button->getText() == "Back") {
+            APP()->setScreen(APP()->getPrevScreen());
+            APP()->setMovie(nullptr);
+        }
+    }
+
+    // Call update on dependent members: buttons
+    for (auto b : m_buttons) {
+        b->update();
+    }
+}
+
+void MovieScreen::init() {
+    // We will be reusing the slideshow button for the "X" icon of this screen
+    // Yes we know that the name doesn't make sense
+    // No we will not change it
+    SlideshowButton* b = new SlideshowButton();
+    m_buttons.push_back(b);
+    b->setText("Back");
+    b->setIcon(ASSET_PATH + std::string("back.png"));
+    b->setPosX(1.0f);
+    b->setPosY(1.0f);
+}
+
+MovieScreen::~MovieScreen() {
+    for (auto b : m_buttons) {
+        delete b;
+    }
+    m_buttons.clear();
 }

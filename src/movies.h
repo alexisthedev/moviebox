@@ -14,13 +14,13 @@ class Movie {
     std::string m_image;
 
 public:
-    void setTitle(std::string t) { m_title = t; }
-    void setYear(int y) { m_year =y; }
-    void setDirectors(std::list<std::string> d) { m_directors = d; }
-    void setActors(std::list<std::string> a) { m_actors = a; }
-    void setGenre(std::string g) { m_genre = g; }
-    void setDesc(std::string d) { m_description = d; }
-    void setImage(std::string i) { m_image = ASSET_PATH + i; }
+    Movie(std::string t, int y, std::list<std::string> d,
+          std::list<std::string> a, std::string g,
+          std::string desc, std::string i):
+            m_title(t), m_year(y),
+            m_directors(d), m_actors(a),
+            m_genre(g), m_description(desc),
+            m_image(MOVIE_PATH+i) {}
 
     std::string getTitle() { return m_title; }
     int getYear() { return m_year; }
@@ -28,5 +28,7 @@ public:
     std::list<std::string> getActors() { return m_actors; }
     std::string getGenre() { return m_genre; }
     std::string getDesc() { return m_description; }
-    std::string getImg() { return m_image; }
+    std::string getImg() { return m_image+".png"; }
+    std::string getBanner() { return m_image+"b.png"; }
+    std::string getPoster() { return m_image+"p.png"; }
 };
