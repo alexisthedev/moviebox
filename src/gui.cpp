@@ -74,7 +74,9 @@ void HomeScreen::init() {
             m_buttons.push_back(m);
 
             // TODO import movies with pictures
-            Movie* temp = new Movie("Star Wars", 1980, {"George Lucas"}, {"Mark Hamill"}, "Space Opera", "Galaxy far far away", "sw");
+            std::string t = "Star Wars Episode V: The Empire Strikes Back";
+            std::string desc = "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth,  Luke Skywalker begins Jedi training with Yoda.";
+            Movie* temp = new Movie(t, 1980, {"George Lucas"}, {"Mark Hamill", "Carrie Fisher", "Harrison Ford"}, "Science Fiction", desc, "sw");
             m->setMovie(temp);
             // --------------------------------
 
@@ -117,6 +119,7 @@ void Slideshow::draw() {
             break;
     }
 
+    // Add gradient
     SETCOLOR(br.fill_secondary_color, 0.03f, 0.04f, 0.12f);
     br.fill_secondary_opacity = 1.0f;
     br.gradient = true;
@@ -293,12 +296,44 @@ void MovieScreen::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 
+    // Add gradient
+    SETCOLOR(br.fill_secondary_color, 0.03f, 0.04f, 0.12f);
+    br.fill_secondary_opacity = 1.0f;
+    br.gradient = true;
+    br.gradient_dir_u = 0.0f;
+    br.gradient_dir_v = 1.0f;
+
     // Draw movie banner
     br.texture = m->getBanner();
-    graphics::drawRect(m_pos[0], m_pos[1]/4.0f, CANVAS_WIDTH, CANVAS_HEIGHT/4.0f, br);
+    graphics::drawRect(m_pos[0], CANVAS_HEIGHT/5.0f, CANVAS_WIDTH, 2.0f*CANVAS_HEIGHT/5.0f, br);
 
-    graphics::drawText(m_pos[0], m_pos[1], 0.6f, m->getTitle(), br);
-    SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
+    br.fill_secondary_opacity = 0.0f;
+    br.gradient = false;
+
+    // Draw movie poster
+    br.texture = m->getPoster();
+    br.outline_opacity = 1.0f;
+    br.outline_width = 4.0f;
+    SETCOLOR(br.outline_color, 1.0f, 1.0f, 1.0f);
+    graphics::drawRect(CANVAS_WIDTH/8.0f, 2.0f*CANVAS_HEIGHT/5.0f, 4.375f, 6.25f, br);
+
+    // Draw movie information
+    br.texture = "";
+    br.outline_opacity = 0.0f;
+    SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
+    graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 1.25f, 0.8f, m->getTitle() + " (" + std::to_string(m->getYear())+")", br);
+
+    SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 2.0f, 0.4f, "Directed  by:  " + m->getDirectors(), br);
+    graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 2.75f, 0.4f, "Starring:  " + m->getActors(), br);
+    graphics::drawText(CANVAS_WIDTH/8.0f - 2.18525f, 2.0f*CANVAS_HEIGHT/5.0f + 3.875f, 0.4f, "Genre:  " + m->getGenre(), br);
+    graphics::drawText(CANVAS_WIDTH/8.0f - 2.18525f, 2.0f*CANVAS_HEIGHT/5.0f + 4.6f, 0.4f, m->getDesc(), br);
+
+    // Draw movie scenes
+    br.texture = m->getScene1();
+    graphics::drawRect(m_pos[0] - 7.0f, CANVAS_HEIGHT - 2.5f, 6.0f, 4.0f, br);
+    br.texture = m->getScene2();
+    graphics::drawRect(m_pos[0] + 7.0f, CANVAS_HEIGHT - 2.5f, 6.0f, 4.0f, br);
 
     for (auto b : m_buttons) {
         b->draw();

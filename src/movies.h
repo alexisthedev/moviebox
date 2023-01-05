@@ -24,11 +24,13 @@ public:
 
     std::string getTitle() { return m_title; }
     int getYear() { return m_year; }
-    std::list<std::string> getDirectors() { return m_directors; }
-    std::list<std::string> getActors() { return m_actors; }
+    std::string getDirectors();
+    std::string getActors();
     std::string getGenre() { return m_genre; }
     std::string getDesc() { return m_description; }
     std::string getImg() { return m_image+".png"; }
     std::string getBanner() { return m_image+"b.png"; }
     std::string getPoster() { return m_image+"p.png"; }
+    std::string getScene1() { return m_image +"1.png"; }
+    std::string getScene2() { return m_image +"2.png"; }
 };
