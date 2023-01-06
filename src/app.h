@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include "widgets.h"
+#include <vector>
 
 class App {
 public:
@@ -14,6 +15,8 @@ protected:
     std::string m_prev_screen;
     Movie* m_movie = nullptr;
 
+    std::vector<Movie*> m_movie_list;
+
     App() {}
 public:
     void draw();
@@ -24,6 +27,7 @@ public:
     std::string getPrevScreen() { return m_prev_screen; }
     void setMovie(Movie* m) { m_movie = m; }
     Movie* getMovie() { return m_movie; }
+    Movie* getRandMovie() { return m_movie_list[std::rand()%m_movie_list.size()]; }
 
     ~App();
 
