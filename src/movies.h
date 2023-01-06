@@ -9,13 +9,13 @@ class Movie {
     int m_year;
     std::list<std::string> m_directors;
     std::list<std::string> m_actors;
-    std::string m_genre;
+    std::list<std::string> m_genre;
     std::string m_description;
     std::string m_image;
 
 public:
     Movie(std::string t, int y, std::list<std::string> d,
-          std::list<std::string> a, std::string g,
+          std::list<std::string> a, std::list<std::string> g,
           std::string desc, std::string i):
             m_title(t), m_year(y),
             m_directors(d), m_actors(a),
@@ -26,7 +26,7 @@ public:
     int getYear() { return m_year; }
     std::string getDirectors();
     std::string getActors();
-    std::string getGenre() { return m_genre; }
+    std::string getGenre();
     std::string getDesc() { return m_description; }
     std::string getImg() { return m_image+".png"; }
     std::string getBanner() { return m_image+"b.png"; }

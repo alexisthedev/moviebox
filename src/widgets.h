@@ -123,7 +123,6 @@ public:
 class Slideshow : public Widget {
     std::list<SlideshowButton*> m_buttons;
     int m_slide = 1;
-
 public:
     void draw();
     void update();
