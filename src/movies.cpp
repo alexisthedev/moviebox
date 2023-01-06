@@ -21,3 +21,13 @@ std::string Movie::getActors() {
     }
     return str;
 }
+
+std::string Movie::getGenre() {
+    std::string str;
+    bool first = true;
+    for (auto g : m_genre) {
+        if (first) { str = g; first = false; continue; }
+        str += ",  " + g;
+    }
+    return str;
+}

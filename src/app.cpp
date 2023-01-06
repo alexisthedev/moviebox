@@ -46,11 +46,27 @@ void App::init() {
     // Initialize movies
     std::string t = "Star Wars Episode V: The Empire Strikes Back";
     std::string desc = "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth,  Luke Skywalker begins Jedi training with Yoda.";
-    m_movie_list.push_back(new Movie(t, 1980, {"George Lucas"}, {"Mark Hamill", "Carrie Fisher", "Harrison Ford"}, "Science Fiction", desc, "sw"));
+    m_movie_list.push_back(new Movie(t, 1980, { "George Lucas" }, { "Mark Hamill", "Carrie Fisher", "Harrison Ford" }, {"Action", "Adventure", "Fantasy", "Science Fiction"}, desc, "sw"));
 
     t = "Black Panther: Wakanda Forever";
     desc = "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.";
-    m_movie_list.push_back(new Movie(t, 2022, {"Ryan Coogler"}, {"Letitia Wright", "Lupita Nyong'o", "Danai Gurira"}, "Action", desc, "bpwf"));
+    m_movie_list.push_back(new Movie(t, 2022, {"Ryan Coogler"}, {"Letitia Wright", "Lupita Nyong'o", "Danai Gurira"}, {"Action", "Adventure", "Drama"}, desc, "bpwf"));
+
+    t = "Everything Everywhere All at Once";
+    desc = "An aging Chinese immigrant is swept up in an insane adventure.";
+    m_movie_list.push_back(new Movie(t, 2022, { "Dan Kwan", "Daniel Scheinert" }, { "Michelle Yeoh", "Stephanie Hsu", "Jamie Lee Curtis" }, {"Action", "Adventure", "Comedy"}, desc, "everything"));
+
+    t = "Nope";
+    desc = "The residents of a lonely gulch in inland California bear witness to an uncanny and chilling discovery.";
+    m_movie_list.push_back(new Movie(t, 2022, {"Jordan Peele"}, {"Daniel Kaluuya", "Keke Palmer", "Steven Yeun"}, {"Horror", "Mystery", "Science Fiction"}, desc, "nope"));
+
+    t = "Elvis";
+    desc = "The life of American music icon Elvis Presley.";
+    m_movie_list.push_back(new Movie(t, 2022, { "Baz Luhrmann" }, { "Tom Hanks", "Austin Butler", "Olivia DeJonge" }, { "Biography", "Drama", "Music" }, desc, "elvis"));
+
+    t = "Encanto";
+    desc = "A Colombian teenage girl has to face the frustration of being the only member of her family without magical powers.";
+    m_movie_list.push_back(new Movie(t, 2021, { "Jared Bush", "Byron Howard", "Charise Castro Smith"}, {"Stephanie Beatriz", "Maria Cecilia Botero", "John Leguizamo"}, {"Animation", "Comedy", "Family"}, desc, "encanto"));
 
     // Initialize components
     Sidebar* s = new Sidebar();

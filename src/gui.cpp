@@ -96,7 +96,7 @@ void Slideshow::draw() {
 
     switch (m_slide) {
         case 1:
-            br.texture = MOVIE_PATH + std::string("bpwf.png");
+            br.texture = ASSET_PATH + std::string("bpwf.png");
             break;
         case 2:
             SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
