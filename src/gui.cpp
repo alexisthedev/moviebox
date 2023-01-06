@@ -72,14 +72,7 @@ void HomeScreen::init() {
             MovieButton* m = new MovieButton();
             m_widgets.push_back((Widget*) m);
             m_buttons.push_back(m);
-
-            // TODO import movies with pictures
-            std::string t = "Star Wars Episode V: The Empire Strikes Back";
-            std::string desc = "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth,  Luke Skywalker begins Jedi training with Yoda.";
-            Movie* temp = new Movie(t, 1980, {"George Lucas"}, {"Mark Hamill", "Carrie Fisher", "Harrison Ford"}, "Science Fiction", desc, "sw");
-            m->setMovie(temp);
-            // --------------------------------
-
+            m->setMovie(APP()->getRandMovie());
             m->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 2.0f + (4.0f + 5.0/9.0f)*j);
             m->setPosY((s->getPosY()+3.25f) + 2.75f + 4.25*i);
         }

@@ -43,6 +43,16 @@ void App::update() {
 }
 
 void App::init() {
+    // Initialize movies
+    std::string t = "Star Wars Episode V: The Empire Strikes Back";
+    std::string desc = "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth,  Luke Skywalker begins Jedi training with Yoda.";
+    m_movie_list.push_back(new Movie(t, 1980, {"George Lucas"}, {"Mark Hamill", "Carrie Fisher", "Harrison Ford"}, "Science Fiction", desc, "sw"));
+
+    t = "Black Panther: Wakanda Forever";
+    desc = "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.";
+    m_movie_list.push_back(new Movie(t, 2022, {"Ryan Coogler"}, {"Letitia Wright", "Lupita Nyong'o", "Danai Gurira"}, "Action", desc, "bpwf"));
+
+    // Initialize components
     Sidebar* s = new Sidebar();
     m_widgets.push_front((Widget*) s);
     s->setPosX(CANVAS_WIDTH/12.0f);
