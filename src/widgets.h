@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include "movies.h"
+#include "moviedb.h"
 
 class Widget {
 protected:
@@ -27,21 +28,21 @@ class Button : public Widget {
 protected:
     std::string m_text;
     bool m_highlighted = false;
+    bool m_active = false;
 
 public:
     void setText(std::string text) { m_text = text; }
     std::string getText() { return m_text; }
     void setHighlight(bool h) { m_highlighted = h; }
+    void setActive(bool a) { m_active = a; }
     virtual bool contains(float x, float y) = 0;
 };
 
 class IconButton : public Button {
 protected:
     std::string m_icon;
-    bool m_active = false;
 
 public:
-    void setActive(bool a) { m_active = a; }
     void setIcon(std::string icon) { m_icon = icon; }
     IconButton() {}
 };
@@ -62,12 +63,26 @@ public:
 
 class MovieButton : public IconButton {
     Movie* m_movie = nullptr;
+
 public:
     void draw();
     void update();
     bool contains(float x, float y);
     void setMovie(Movie* m) { m_movie = m; m_icon = m_movie->getImg(); }
     Movie* getMovie() { return m_movie; }
+};
+
+class Slider : public Button {
+    float m_rect_pos;
+
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+    void init() { m_rect_pos = (m_text == "From") ? m_pos[0]-1.1f : m_pos[0]+1.1f; }
+    void slide(float x);
+    Slider() {}
+    ~Slider() {}
 };
 
 /* Sidebar */
@@ -103,6 +118,8 @@ class BrowseScreen : public Widget {
     std::list<Widget*> m_widgets;
     std::list<Button*> m_buttons;
     Button* m_active_button = nullptr;
+    std::vector<Movie*> m_results = DB()->getMoviesFromRange(1980, 2022);
+
 public:
     void draw();
     void update();
@@ -141,20 +158,4 @@ public:
     void init();
     Slideshow() {}
     ~Slideshow();
-};
-
-/* Browse Screen Widgets */
-
-class Slider : public Button {
-    float m_rect_pos;
-    bool m_active;
-public:
-    void draw();
-    void update();
-    bool contains(float x, float y);
-    void init() { m_rect_pos = (m_text == "From") ? m_pos[0]-1.1f : m_pos[0]+1.1f; }
-    void setActive(bool a) { m_active = a; }
-    void slide(float x);
-    Slider() {}
-    ~Slider() {}
 };

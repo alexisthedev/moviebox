@@ -12,15 +12,15 @@ void HomeScreen::draw() {
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 1.2f, 0.5f, "Popular", br);
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 5.45f, 0.5f, "New Releases", br);
 
-    for (auto w : m_widgets) {
-        w->draw();
-    }
-
     if (m_active_button) {
         APP()->setScreen("Movie");
         APP()->setMovie(m_active_button->getMovie());
     }
     m_active_button = nullptr;
+
+    for (auto w : m_widgets) {
+        w->draw();
+    }
 }
 
 void HomeScreen::update() {
@@ -260,35 +260,15 @@ void BrowseScreen::draw() {
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, 2.0f, 0.4f, "To: ", br);
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.5f, 2.0f, 0.4f, "2022", br);
 
-    std::vector<Movie*> results = DB()->getMoviesFromRange(1980, 2022);
-    int counter = 0;
-    for (int i=0; i<2; i++) {
-        for (int j=0; j<5; j++) {
-            if(counter >= results.size()) break;
-            MovieButton* m = new MovieButton();
-            //m_widgets.push_back((Widget*) m); //error in destructor (deleted again later)
-            m_buttons.push_back((Button*) m);
-            m->setMovie(results[counter]);
-            m->setText("Vertical");
-            m->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 2.0f + 4.4f*j);
-            m->setPosY(6.0f+ 6.3f*i);
-            counter++;
-        }
+    if (m_active_button && m_active_button->getText()=="Vertical") {
+        APP()->setScreen("Movie");
+        APP()->setMovie(((MovieButton*) m_active_button)->getMovie());
+        m_active_button = nullptr;
     }
 
     for (auto w : m_widgets) {
         w->draw();
     }
-
-    for (auto b : m_buttons) {
-        b->draw();
-    }
-
-    // if (m_active_button && m_active_button->getText()!="From" && m_active_button->getText()!="To") {
-    //     APP()->setScreen("Movie");
-    //     APP()->setMovie(((MovieButton*) m_active_button)->getMovie());
-    // }
-    // m_active_button = nullptr;
 }
 
 void BrowseScreen::update() {
@@ -304,24 +284,22 @@ void BrowseScreen::update() {
 
     // Highlight button
     Button* cur_button = nullptr;
-    for (auto w : m_widgets) {
-        if (((Slider*)w)->contains(mx, my)) {
-            ((Slider*)w)->setHighlight(true);
-            cur_button = (Slider*) w;
+    for (auto b : m_buttons) {
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
         } else {
-            ((Slider*)w)->setHighlight(false);
+            b->setHighlight(false);
         }
     }
 
     // Activate Button
     if (ms.button_left_pressed && cur_button) {
         m_active_button = cur_button;
-        ((Slider*)m_active_button)->setActive(true);
+        m_active_button->setActive(true);
         for (auto b : m_buttons) {
             if (b != m_active_button) {
-                if (b->getText() == "From" || b->getText() == "To") {
-                    ((Slider*)b)->setActive(false);
-                }
+                b->setActive(false);
             }
         }
     }
@@ -331,13 +309,15 @@ void BrowseScreen::update() {
         ((Slider*) m_active_button)->slide(mx);
     }
 
+    // Ensure slider is deactivated after releasing lmb
+    if (m_active_button && (m_active_button->getText()=="From" || m_active_button->getText()=="To") && ms.button_left_released) {
+        m_active_button = nullptr;
+    }
+
     // Call update on dependent members
     for (auto b : m_buttons) {
         b->update();
     }
-    // for (auto w : m_widgets) {
-    //     w->update(); //is empty for slider
-    // }
 }
 
 void BrowseScreen::init() {
@@ -352,16 +332,33 @@ void BrowseScreen::init() {
 
     Slider* t = new Slider();
     m_widgets.push_front(t);
-    m_buttons.push_front(f);
+    m_buttons.push_front(t);
     t->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 3.0f);
     t->setPosY(1.85f);
     t->setText("To");
     t->init();
+
+    // Initialize Movie Buttons
+
+    int counter = 0;
+    for (int i=0; i<2; i++) {
+        for (int j=0; j<5; j++) {
+            if(counter >= m_results.size()) break;
+            MovieButton* m = new MovieButton();
+            m_widgets.push_back((Widget*) m);
+            m_buttons.push_back((Button*) m);
+            m->setMovie(m_results[counter]);
+            m->setText("Vertical");
+            m->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 2.1875f + 4.4f*j);
+            m->setPosY(6.0f + 6.27f*i);
+            counter++;
+        }
+    }
 }
 
 BrowseScreen::~BrowseScreen() {
     for (auto w : m_widgets) {
-        delete w;
+        if (w) delete w;
     }
     m_widgets.clear();
     m_buttons.clear();
