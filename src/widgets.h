@@ -79,8 +79,9 @@ public:
     void draw();
     void update();
     bool contains(float x, float y);
-    void init() { m_rect_pos = (m_text == "From") ? m_pos[0]-1.1f : m_pos[0]+1.1f; }
+    void init() { m_rect_pos = (m_text == "From") ? m_pos[0]-SLIDER_LENGTH/2.0f : m_pos[0]+SLIDER_LENGTH/2.0f; }
     void slide(float x);
+    int pos_to_value();
     Slider() {}
     ~Slider() {}
 };
@@ -119,6 +120,8 @@ class BrowseScreen : public Widget {
     std::list<Button*> m_buttons;
     Button* m_active_button = nullptr;
     std::vector<Movie*> m_results;
+    int m_range_start;
+    int m_range_end;
 
 public:
     void draw();

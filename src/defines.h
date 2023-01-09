@@ -11,6 +11,7 @@ inline void sleep(int ms) {
 
 #define CANVAS_WIDTH 28.0f
 #define CANVAS_HEIGHT 16.0f
+#define SLIDER_LENGTH 2.15f
 
 #define ASSET_PATH "assets/"
 #define MOVIE_PATH "assets/movies/"

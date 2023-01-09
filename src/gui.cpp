@@ -257,10 +257,10 @@ void BrowseScreen::draw() {
 
     // Draw slider info
     SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, 1.0f, 0.4f, "From: ", br);
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.5f, 1.0f, 0.4f, "1980", br);
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, 2.0f, 0.4f, "To: ", br);
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.5f, 2.0f, 0.4f, "2022", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 0.73f, 1.0f, 0.4f, "From: ", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.0f, 1.0f, 0.4f, std::to_string(m_range_start), br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 0.73f, 2.0f, 0.4f, "To: ", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.0f, 2.0f, 0.4f, std::to_string(m_range_end), br);
 
     int m = 0;
     // Show movies based on search results
@@ -319,7 +319,11 @@ void BrowseScreen::update() {
 
     // Move slider
     if (ms.dragging && m_active_button && (m_active_button->getText() == "From" || m_active_button->getText() == "To")) {
-        ((Slider*) m_active_button)->slide(mx);
+        Slider* sl = (Slider*) m_active_button;
+        sl->slide(mx);
+        m_range_start = (sl->getText() == "From") ? sl->pos_to_value()-142 : m_range_start;
+        m_range_end = (sl->getText() == "To") ? sl->pos_to_value()-142 : m_range_end;
+        m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
     }
 
     // Ensure slider is deactivated after releasing lmb
@@ -335,7 +339,9 @@ void BrowseScreen::update() {
 
 void BrowseScreen::init() {
     // Show all movies intially
-    m_results = DB()->getMoviesFromRange(1980, 2022);
+    m_range_start = 1980;
+    m_range_end = 2022;
+    m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
 
     // Intialize Sliders
     Slider* f = new Slider();
@@ -385,7 +391,7 @@ void Slider::draw() {
     br.outline_width = 1.0f;
     SETCOLOR(br.outline_color, 0.80f, 0.80f, 0.85f);
     SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
-    graphics::drawLine(m_pos[0]-1.1f, m_pos[1], m_pos[0]+1.1f, m_pos[1], br);
+    graphics::drawLine(m_pos[0]-SLIDER_LENGTH/2.0f, m_pos[1], m_pos[0]+SLIDER_LENGTH/2.0f, m_pos[1], br);
 
     // Draw slider rectangle
     br.outline_opacity = 0.0f;
@@ -406,13 +412,17 @@ bool Slider::contains(float x, float y) {
 }
 
 void Slider::slide(float x) {
-    if (x < m_pos[0]-1.1f) {
-        m_rect_pos = m_pos[0]-1.1f;
-    } else if (x > m_pos[0]+1.1f) {
-        m_rect_pos = m_pos[0]+1.1f;
+    if (x < m_pos[0]-SLIDER_LENGTH/2.0f) {
+        m_rect_pos = m_pos[0]-SLIDER_LENGTH/2.0f;
+    } else if (x > m_pos[0]+SLIDER_LENGTH/2.0f) {
+        m_rect_pos = m_pos[0]+SLIDER_LENGTH/2.0f;
     } else {
         m_rect_pos = x;
     }
+}
+
+int Slider::pos_to_value() {
+    return (int) 1980 + m_rect_pos/0.05f;
 }
 
 
