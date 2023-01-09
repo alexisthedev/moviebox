@@ -93,28 +93,10 @@ HomeScreen::~HomeScreen() {
 
 void Slideshow::draw() {
     // Draw slideshow banner pic
-    std::vector<Movie*> movies = DB()->getSlideshowMovies();
     graphics::Brush br;
     br.fill_opacity = 1.0f;
     br.outline_opacity = 0.0f;
-
-    switch (m_slide) {
-        case 1:
-            br.texture = ASSET_PATH + std::string(movies[0]->getShortcut() + ".png");
-            break;
-        case 2:
-            br.texture = ASSET_PATH + std::string(movies[1]->getShortcut() + ".png");
-            break;
-        case 3:
-            br.texture = ASSET_PATH + std::string(movies[2]->getShortcut() + ".png");
-            break;
-        case 4:
-            br.texture = ASSET_PATH + std::string(movies[3]->getShortcut() + ".png");
-            break;
-        default:
-            SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
-            break;
-    }
+    br.texture = ASSET_PATH + m_movies[m_slide-1]->getShortcut() + ".png";
 
     // Add gradient
     SETCOLOR(br.fill_secondary_color, 0.03f, 0.04f, 0.12f);
@@ -123,6 +105,12 @@ void Slideshow::draw() {
     br.gradient_dir_u = 0.0f;
     br.gradient_dir_v = 1.0f;
     graphics::drawRect(m_pos[0], m_pos[1], CANVAS_WIDTH * 5.0f/8.0f, 6.5f, br);
+
+    // Draw title
+    br.texture = "";
+    br.gradient = false;
+    br.fill_secondary_opacity = 0.0f;
+    graphics::drawText(m_pos[0]-CANVAS_WIDTH*5.0f/16.0f + 0.5f, m_pos[1]+3.0f, 0.6f, m_movies[m_slide-1]->getTitle(), br);
 
     // Draw slideshow buttons
     for (auto b : m_buttons) {
@@ -159,6 +147,13 @@ void Slideshow::update() {
         }
     }
 
+    // Check if user clicks on movie slide
+    if (m_pos[0] - CANVAS_WIDTH*5.0f/16.0f <= mx && mx <= m_pos[0] + CANVAS_WIDTH*5.0f/16.0f &&
+            m_pos[1] - 3.25f <= my && my <= m_pos[1] + 3.25f && ms.button_left_pressed) {
+        APP()->setScreen("Movie");
+        APP()->setMovie(m_movies[m_slide-1]);
+    }
+
     // Call update on dependent members: buttons
     for (auto b : m_buttons) {
         b->update();
@@ -179,6 +174,8 @@ void Slideshow::init() {
     r->setIcon(ASSET_PATH + std::string("right.png"));
     r->setPosX(m_pos[0] + 1.5f + CANVAS_WIDTH * 5.0f/16.0f);
     r->setPosY(m_pos[1]);
+
+    m_movies = DB()->getSlideshowMovies();
 }
 
 Slideshow::~Slideshow() {
@@ -543,7 +540,7 @@ void MovieScreen::update() {
         }
     }
 
-    // Change to next or prev slide
+    // Close movie screen
     if (ms.button_left_pressed && cur_button) {
         if (cur_button->getText() == "Back") {
             APP()->setScreen(APP()->getPrevScreen());

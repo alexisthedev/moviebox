@@ -154,7 +154,9 @@ public:
 
 class Slideshow : public Widget {
     std::list<SlideshowButton*> m_buttons;
+    std::vector<Movie*> m_movies;
     int m_slide = 1;
+
 public:
     void draw();
     void update();
