@@ -318,8 +318,8 @@ void BrowseScreen::update() {
     if (ms.dragging && m_active_button && (m_active_button->getText() == "From" || m_active_button->getText() == "To")) {
         Slider* sl = (Slider*) m_active_button;
         sl->slide(mx);
-        m_range_start = (sl->getText() == "From") ? sl->pos_to_value()-142 : m_range_start;
-        m_range_end = (sl->getText() == "To") ? sl->pos_to_value()-142 : m_range_end;
+        m_range_start= (sl->getText() == "From") ? sl->pos_to_value(): m_range_start;
+        m_range_end = (sl->getText() == "To") ? sl->pos_to_value() : m_range_end;
         m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
     }
 
@@ -419,7 +419,9 @@ void Slider::slide(float x) {
 }
 
 int Slider::pos_to_value() {
-    return (int) 1980 + m_rect_pos/0.05f;
+    if (m_rect_pos == m_pos[0] - SLIDER_LENGTH / 2.0f) return 1980;
+    if (m_rect_pos == m_pos[0] + SLIDER_LENGTH / 2.0f) return 2022;
+    return (int) 1980 + (m_rect_pos - m_pos[0] + SLIDER_LENGTH/2.0f)/0.05f;
 }
 
 
