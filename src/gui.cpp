@@ -217,6 +217,8 @@ bool SlideshowButton::contains(float x, float y) {
 /* Movie Widget */
 
 void MovieButton::draw() {
+    if (!m_movie) return;
+
     graphics::Brush br;
     br.outline_opacity = 0.0f;
     if (m_text == "Horizontal") {
@@ -260,6 +262,16 @@ void BrowseScreen::draw() {
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, 2.0f, 0.4f, "To: ", br);
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.5f, 2.0f, 0.4f, "2022", br);
 
+    int m = 0;
+    // Show movies based on search results
+    for (auto w : m_widgets) {
+        MovieButton* mb = dynamic_cast<MovieButton*> (w);
+        if (!mb) continue;
+        // If we are here the element is a MovieButton
+        mb->setMovie((m<m_results.size()) ? m_results[m] : nullptr);
+        m++;
+    }
+
     if (m_active_button && m_active_button->getText()=="Vertical") {
         APP()->setScreen("Movie");
         APP()->setMovie(((MovieButton*) m_active_button)->getMovie());
@@ -285,6 +297,7 @@ void BrowseScreen::update() {
     // Highlight button
     Button* cur_button = nullptr;
     for (auto b : m_buttons) {
+        if (dynamic_cast<MovieButton*> (b) && !((MovieButton*) b)->getMovie()) continue;
         if (b->contains(mx, my)) {
             b->setHighlight(true);
             cur_button = b;
@@ -321,6 +334,9 @@ void BrowseScreen::update() {
 }
 
 void BrowseScreen::init() {
+    // Show all movies intially
+    m_results = DB()->getMoviesFromRange(1980, 2022);
+
     // Intialize Sliders
     Slider* f = new Slider();
     m_widgets.push_front(f);
@@ -339,15 +355,12 @@ void BrowseScreen::init() {
     t->init();
 
     // Initialize Movie Buttons
-
     int counter = 0;
     for (int i=0; i<2; i++) {
         for (int j=0; j<5; j++) {
-            if(counter >= m_results.size()) break;
             MovieButton* m = new MovieButton();
             m_widgets.push_back((Widget*) m);
             m_buttons.push_back((Button*) m);
-            m->setMovie(m_results[counter]);
             m->setText("Vertical");
             m->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 2.1875f + 4.4f*j);
             m->setPosY(6.0f + 6.27f*i);

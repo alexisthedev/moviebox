@@ -68,7 +68,7 @@ public:
     void draw();
     void update();
     bool contains(float x, float y);
-    void setMovie(Movie* m) { m_movie = m; m_icon = m_movie->getImg(); }
+    void setMovie(Movie* m) { m_movie = m; m_icon = (m) ? m_movie->getImg() : ""; }
     Movie* getMovie() { return m_movie; }
 };
 
@@ -118,7 +118,7 @@ class BrowseScreen : public Widget {
     std::list<Widget*> m_widgets;
     std::list<Button*> m_buttons;
     Button* m_active_button = nullptr;
-    std::vector<Movie*> m_results = DB()->getMoviesFromRange(1980, 2022);
+    std::vector<Movie*> m_results;
 
 public:
     void draw();
