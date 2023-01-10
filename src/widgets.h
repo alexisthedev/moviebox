@@ -86,6 +86,15 @@ public:
     ~Slider() {}
 };
 
+class Checkbox : public Button {
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+    Checkbox() {}
+    ~Checkbox() {}
+};
+
 /* Sidebar */
 
 class Sidebar : public Widget {
