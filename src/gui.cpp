@@ -223,7 +223,7 @@ void MovieButton::draw() {
         graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
     } else if (m_text == "Vertical") {
         br.texture = m_movie->getPoster();
-        graphics::drawRect(m_pos[0], m_pos[1], 4.375f, 6.25f, br);
+        graphics::drawRect(m_pos[0], m_pos[1], 3.65f, 5.2f, br);
     }
 
     SETCOLOR(br.fill_color, 0.0f, 0.0f, 0.0f);
@@ -231,7 +231,7 @@ void MovieButton::draw() {
     if (m_text == "Horizontal") {
         graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
     } else if (m_text == "Vertical") {
-        graphics::drawRect(m_pos[0], m_pos[1], 4.375f, 6.25f, br);
+        graphics::drawRect(m_pos[0], m_pos[1], 3.65f, 5.2f, br);
     }
 }
 
@@ -241,7 +241,7 @@ void MovieButton::update() {
 
 bool MovieButton::contains(float x, float y) {
     return (m_text == "Horizontal") ? m_pos[0] - 2.0f <= x && x <= m_pos[0] + 2.0f && m_pos[1] - 1.25f <= y && y <= m_pos[1] + 1.25f :
-                                    m_pos[0] - 2.1875f <= x && x <= m_pos[0] + 2.1875f && m_pos[1] - 3.125f <= y && y <= m_pos[1] + 3.125f;
+                                    m_pos[0] - 1.825f <= x && x <= m_pos[0] + 1.825f && m_pos[1] - 2.6f <= y && y <= m_pos[1] + 2.6f;
 }
 
 /* Browse Screen */
@@ -291,9 +291,17 @@ void BrowseScreen::update() {
     float mx = graphics::windowToCanvasX(ms.cur_pos_x);
     float my = graphics::windowToCanvasY(ms.cur_pos_y);
 
+    // Set genres selected previously as active
+    for(auto w : m_buttons) {
+        if(dynamic_cast<Checkbox*>(w) && std::count(m_active_genres.begin(), m_active_genres.end(), w->getText())) {
+            w->setActive(true);
+        }
+    }
+
     // Highlight button
     Button* cur_button = nullptr;
     for (auto b : m_buttons) {
+        // If the Button is a MovieButton but has no movie, continue
         if (dynamic_cast<MovieButton*> (b) && !((MovieButton*) b)->getMovie()) continue;
         if (b->contains(mx, my)) {
             b->setHighlight(true);
@@ -304,14 +312,22 @@ void BrowseScreen::update() {
     }
 
     // Activate Button
-    if (ms.button_left_pressed && cur_button) {
+    if (ms.button_left_pressed && cur_button && !dynamic_cast<Checkbox*>(cur_button)) {
         m_active_button = cur_button;
         m_active_button->setActive(true);
         for (auto b : m_buttons) {
-            if (b != m_active_button) {
+            if (b != m_active_button && !dynamic_cast<Checkbox*>(cur_button)) {
                 b->setActive(false);
             }
         }
+    } else if (ms.button_left_pressed && cur_button) {
+        // The button is a Checkbox and it was clicked
+       if (cur_button->isActive()){
+            m_active_genres.erase(cur_button->getText());
+       } else {
+            m_active_genres.insert(cur_button->getText());
+       }
+       cur_button->setActive(!cur_button->isActive());
     }
 
     // Move slider
@@ -320,12 +336,28 @@ void BrowseScreen::update() {
         sl->slide(mx);
         m_range_start= (sl->getText() == "From") ? sl->pos_to_value(): m_range_start;
         m_range_end = (sl->getText() == "To") ? sl->pos_to_value() : m_range_end;
-        m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
     }
 
     // Ensure slider is deactivated after releasing lmb
     if (m_active_button && (m_active_button->getText()=="From" || m_active_button->getText()=="To") && ms.button_left_released) {
         m_active_button = nullptr;
+    }
+
+    m_movies_from_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
+    m_movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
+    // Display movies based on filters
+    if(m_active_genres.empty()) {
+        // Display no specific movies based on genre
+        m_results = m_movies_from_range;
+    } else {
+        m_results.clear();
+        m_movies_from_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
+        m_movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
+        for(auto m : m_movies_by_genre) {
+            if(std::count(m_movies_from_range.begin(), m_movies_from_range.end(), m) != 0) {
+                m_results.push_back(m);
+            }
+        }
     }
 
     // Call update on dependent members
@@ -358,26 +390,27 @@ void BrowseScreen::init() {
     t->init();
 
     // Initialize Checkboxes
+    int counter = 0;
     for (auto g : DB()->getGenres()) {
         Checkbox* genre_button = new Checkbox();
         m_widgets.push_front(genre_button);
         m_buttons.push_front(genre_button);
-        genre_button->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 10.0f);
-        genre_button->setPosY(1.85f);
+        genre_button->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 1.825f*2.0f + 3.675f*4.0f + 0.73f);
+        genre_button->setPosY(3.8f + 1.0f*counter);
         genre_button->setText(g);
-        break;
+        counter++;
     }
 
     // Initialize Movie Buttons
-    int counter = 0;
+    counter = 0;
     for (int i=0; i<2; i++) {
         for (int j=0; j<5; j++) {
             MovieButton* m = new MovieButton();
             m_widgets.push_back((Widget*) m);
             m_buttons.push_back((Button*) m);
             m->setText("Vertical");
-            m->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 2.1875f + 4.4f*j);
-            m->setPosY(6.0f + 6.27f*i);
+            m->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 1.825f + 3.675f*j);
+            m->setPosY(6.0f + 5.22f*i);
             counter++;
         }
     }
@@ -440,6 +473,15 @@ int Slider::pos_to_value() {
 
 void Checkbox::draw() {
     graphics::Brush br;
+    br.fill_opacity = 1.0f;
+    br.outline_opacity = 0.0f;
+
+    if (m_active || m_highlighted) {
+        SETCOLOR(br.fill_color, 1.0f, 0.54f, .0f);
+    } else {
+        SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    }
+
     graphics::drawText(m_pos[0], m_pos[1], 0.4f, m_text, br);
 }
 
@@ -448,7 +490,7 @@ void Checkbox::update() {
 }
 
 bool Checkbox::contains(float x, float y) {
-    return false;
+    return (x >= CANVAS_WIDTH/6.0f + 0.73f + 1.825f*2.0f + 3.675f*4.0f + 0.73f) && m_pos[1]-0.7f < y && y < m_pos[1]+0.3f;
 }
 
 

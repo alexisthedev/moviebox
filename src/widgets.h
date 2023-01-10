@@ -2,6 +2,7 @@
 #include "sgg/graphics.h"
 #include <string>
 #include <list>
+#include <set>
 #include "movies.h"
 #include "moviedb.h"
 
@@ -35,6 +36,7 @@ public:
     std::string getText() { return m_text; }
     void setHighlight(bool h) { m_highlighted = h; }
     void setActive(bool a) { m_active = a; }
+    bool isActive() { return m_active; }
     virtual bool contains(float x, float y) = 0;
 };
 
@@ -128,9 +130,12 @@ class BrowseScreen : public Widget {
     std::list<Widget*> m_widgets;
     std::list<Button*> m_buttons;
     Button* m_active_button = nullptr;
-    std::vector<Movie*> m_results;
+    std::set<std::string> m_active_genres;
     int m_range_start;
     int m_range_end;
+    std::vector<Movie*> m_movies_from_range;
+    std::vector<Movie*> m_movies_by_genre;
+    std::vector<Movie*> m_results;
 
 public:
     void draw();

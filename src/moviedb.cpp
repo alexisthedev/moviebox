@@ -11,10 +11,9 @@ std::vector<Movie*> MovieDB::getMoviesFromRange(int from, int to) {
     return res;
 }
 
-std::vector<Movie*> MovieDB::getMoviesByGenre(std::vector<std::string> genres) {
+std::vector<Movie*> MovieDB::getMoviesByGenre(std::set<std::string> genres) {
     std::vector<Movie*> res;
     for (auto m : m_movies) {
-
         for (auto g : m->getGenreList()) {
             if (std::count(genres.begin(), genres.end(), g) != 0) {
                 res.push_back(m);
@@ -90,7 +89,7 @@ void MovieDB::init() {
     m_movies.push_back(m);
     m_slideshow.push_back(m);
 
-    m_genres = {"Science Fiction", "Adventure", "Action", "Comedy", "Family", "Fantasy", "Drama", "Horror"};
+    m_genres = {"Adventure", "Action", "Comedy", "Science Fiction", "Family", "Fantasy", "Drama", "Horror"};
 }
 
 MovieDB::~MovieDB() {
