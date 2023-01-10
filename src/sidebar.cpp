@@ -74,7 +74,7 @@ void Sidebar::init() {
     // Initialize home button
     SidebarButton* home = new SidebarButton();
     home->setText("Home");
-    home->setIcon(ASSET_PATH + std::string("home.png"));
+    home->setIcon(ASSET_PATH + std::string("homepage.png"));
     home->setActive(true);
     m_buttons.push_back(home);
 

@@ -1,5 +1,6 @@
 #include "app.h"
 #include "defines.h"
+#include "moviedb.h"
 
 /* Home Screen */
 
@@ -8,18 +9,18 @@ void HomeScreen::draw() {
 
     graphics::Brush br;
     br.outline_opacity = 0.0f;
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 1.2f, 0.5f, "New Releases", br);
-    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 5.45f, 0.5f, "Popular", br);
-
-    for (auto w : m_widgets) {
-        w->draw();
-    }
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 1.2f, 0.5f, "Popular", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f, (CANVAS_HEIGHT/4.0f + 3.25f) + 5.45f, 0.5f, "New Releases", br);
 
     if (m_active_button) {
         APP()->setScreen("Movie");
         APP()->setMovie(m_active_button->getMovie());
     }
     m_active_button = nullptr;
+
+    for (auto w : m_widgets) {
+        w->draw();
+    }
 }
 
 void HomeScreen::update() {
@@ -68,11 +69,13 @@ void HomeScreen::init() {
     s->init();
 
     for (int i=0; i<2; i++) {
+        std::vector<Movie*> home_movies = (i==0) ? DB()->getPopularMovies() : DB()->getMoviesFromRange(2021,2022);
         for (int j=0; j<5; j++) {
             MovieButton* m = new MovieButton();
             m_widgets.push_back((Widget*) m);
             m_buttons.push_back(m);
-            m->setMovie(APP()->getRandMovie());
+            m->setMovie(home_movies[j]);
+            m->setText("Horizontal");
             m->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 2.0f + (4.0f + 5.0/9.0f)*j);
             m->setPosY((s->getPosY()+3.25f) + 2.75f + 4.25*i);
         }
@@ -93,24 +96,7 @@ void Slideshow::draw() {
     graphics::Brush br;
     br.fill_opacity = 1.0f;
     br.outline_opacity = 0.0f;
-
-    switch (m_slide) {
-        case 1:
-            br.texture = ASSET_PATH + std::string("bpwf.png");
-            break;
-        case 2:
-            SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
-            break;
-        case 3:
-            SETCOLOR(br.fill_color, 0.0f, 1.0f, 0.0f);
-            break;
-        case 4:
-            SETCOLOR(br.fill_color, 0.0f, 0.0f, 1.0f);
-            break;
-        default:
-            SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
-            break;
-    }
+    br.texture = ASSET_PATH + m_movies[m_slide-1]->getShortcut() + ".png";
 
     // Add gradient
     SETCOLOR(br.fill_secondary_color, 0.03f, 0.04f, 0.12f);
@@ -119,6 +105,12 @@ void Slideshow::draw() {
     br.gradient_dir_u = 0.0f;
     br.gradient_dir_v = 1.0f;
     graphics::drawRect(m_pos[0], m_pos[1], CANVAS_WIDTH * 5.0f/8.0f, 6.5f, br);
+
+    // Draw title
+    br.texture = "";
+    br.gradient = false;
+    br.fill_secondary_opacity = 0.0f;
+    graphics::drawText(m_pos[0]-CANVAS_WIDTH*5.0f/16.0f + 0.5f, m_pos[1]+3.0f, 0.6f, m_movies[m_slide-1]->getTitle(), br);
 
     // Draw slideshow buttons
     for (auto b : m_buttons) {
@@ -155,6 +147,13 @@ void Slideshow::update() {
         }
     }
 
+    // Check if user clicks on movie slide
+    if (m_pos[0] - CANVAS_WIDTH*5.0f/16.0f <= mx && mx <= m_pos[0] + CANVAS_WIDTH*5.0f/16.0f &&
+            m_pos[1] - 3.25f <= my && my <= m_pos[1] + 3.25f && ms.button_left_pressed) {
+        APP()->setScreen("Movie");
+        APP()->setMovie(m_movies[m_slide-1]);
+    }
+
     // Call update on dependent members: buttons
     for (auto b : m_buttons) {
         b->update();
@@ -175,6 +174,8 @@ void Slideshow::init() {
     r->setIcon(ASSET_PATH + std::string("right.png"));
     r->setPosX(m_pos[0] + 1.5f + CANVAS_WIDTH * 5.0f/16.0f);
     r->setPosY(m_pos[1]);
+
+    m_movies = DB()->getSlideshowMovies();
 }
 
 Slideshow::~Slideshow() {
@@ -213,17 +214,24 @@ bool SlideshowButton::contains(float x, float y) {
 /* Movie Widget */
 
 void MovieButton::draw() {
+    if (!m_movie) return;
+
     graphics::Brush br;
     br.outline_opacity = 0.0f;
-    br.texture = m_movie->getImg();
-    graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
+    if (m_text == "Horizontal") {
+        br.texture = m_movie->getImg();
+        graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
+    } else if (m_text == "Vertical") {
+        br.texture = m_movie->getPoster();
+        graphics::drawRect(m_pos[0], m_pos[1], 4.375f, 6.25f, br);
+    }
 
-    if (m_highlighted) {
-        graphics::Brush reticle;
-        reticle.outline_opacity = 0.0f;
-        SETCOLOR(reticle.fill_color, 0.0f, 0.0f, 0.0f);
-        reticle.fill_opacity = 0.4f;
-        graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, reticle);
+    SETCOLOR(br.fill_color, 0.0f, 0.0f, 0.0f);
+    br.fill_opacity = 0.4f * m_highlighted;
+    if (m_text == "Horizontal") {
+        graphics::drawRect(m_pos[0], m_pos[1], 4.0f, 2.5f, br);
+    } else if (m_text == "Vertical") {
+        graphics::drawRect(m_pos[0], m_pos[1], 4.375f, 6.25f, br);
     }
 }
 
@@ -232,7 +240,188 @@ void MovieButton::update() {
 }
 
 bool MovieButton::contains(float x, float y) {
-    return m_pos[0] - 2.0f <= x && x <= m_pos[0] + 2.0f && m_pos[1] - 1.25f <= y && y <= m_pos[1] + 1.25f;
+    return (m_text == "Horizontal") ? m_pos[0] - 2.0f <= x && x <= m_pos[0] + 2.0f && m_pos[1] - 1.25f <= y && y <= m_pos[1] + 1.25f :
+                                    m_pos[0] - 2.1875f <= x && x <= m_pos[0] + 2.1875f && m_pos[1] - 3.125f <= y && y <= m_pos[1] + 3.125f;
+}
+
+/* Browse Screen */
+
+void BrowseScreen::draw() {
+    if (APP()->getScreen() != "Browse") return;
+
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+
+    // Draw slider info
+    SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 0.73f, 1.0f, 0.4f, "From: ", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.0f, 1.0f, 0.4f, std::to_string(m_range_start), br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 0.73f, 2.0f, 0.4f, "To: ", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.0f, 2.0f, 0.4f, std::to_string(m_range_end), br);
+
+    int m = 0;
+    // Show movies based on search results
+    for (auto w : m_widgets) {
+        MovieButton* mb = dynamic_cast<MovieButton*> (w);
+        if (!mb) continue;
+        // If we are here the element is a MovieButton
+        mb->setMovie((m<m_results.size()) ? m_results[m] : nullptr);
+        m++;
+    }
+
+    if (m_active_button && m_active_button->getText()=="Vertical") {
+        APP()->setScreen("Movie");
+        APP()->setMovie(((MovieButton*) m_active_button)->getMovie());
+        m_active_button = nullptr;
+    }
+
+    for (auto w : m_widgets) {
+        w->draw();
+    }
+}
+
+void BrowseScreen::update() {
+    if (APP()->getScreen() != "Browse") return;
+
+    // Get mouse position
+    graphics::MouseState ms;
+    graphics::getMouseState(ms);
+
+    // Convert mouse cords to canvas cords
+    float mx = graphics::windowToCanvasX(ms.cur_pos_x);
+    float my = graphics::windowToCanvasY(ms.cur_pos_y);
+
+    // Highlight button
+    Button* cur_button = nullptr;
+    for (auto b : m_buttons) {
+        if (dynamic_cast<MovieButton*> (b) && !((MovieButton*) b)->getMovie()) continue;
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
+        } else {
+            b->setHighlight(false);
+        }
+    }
+
+    // Activate Button
+    if (ms.button_left_pressed && cur_button) {
+        m_active_button = cur_button;
+        m_active_button->setActive(true);
+        for (auto b : m_buttons) {
+            if (b != m_active_button) {
+                b->setActive(false);
+            }
+        }
+    }
+
+    // Move slider
+    if (ms.dragging && m_active_button && (m_active_button->getText() == "From" || m_active_button->getText() == "To")) {
+        Slider* sl = (Slider*) m_active_button;
+        sl->slide(mx);
+        m_range_start= (sl->getText() == "From") ? sl->pos_to_value(): m_range_start;
+        m_range_end = (sl->getText() == "To") ? sl->pos_to_value() : m_range_end;
+        m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
+    }
+
+    // Ensure slider is deactivated after releasing lmb
+    if (m_active_button && (m_active_button->getText()=="From" || m_active_button->getText()=="To") && ms.button_left_released) {
+        m_active_button = nullptr;
+    }
+
+    // Call update on dependent members
+    for (auto b : m_buttons) {
+        b->update();
+    }
+}
+
+void BrowseScreen::init() {
+    // Show all movies intially
+    m_range_start = 1980;
+    m_range_end = 2022;
+    m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
+
+    // Intialize Sliders
+    Slider* f = new Slider();
+    m_widgets.push_front(f);
+    m_buttons.push_front(f);
+    f->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 3.0f);
+    f->setPosY(0.85f);
+    f->setText("From");
+    f->init();
+
+    Slider* t = new Slider();
+    m_widgets.push_front(t);
+    m_buttons.push_front(t);
+    t->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 3.0f);
+    t->setPosY(1.85f);
+    t->setText("To");
+    t->init();
+
+    // Initialize Movie Buttons
+    int counter = 0;
+    for (int i=0; i<2; i++) {
+        for (int j=0; j<5; j++) {
+            MovieButton* m = new MovieButton();
+            m_widgets.push_back((Widget*) m);
+            m_buttons.push_back((Button*) m);
+            m->setText("Vertical");
+            m->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 2.1875f + 4.4f*j);
+            m->setPosY(6.0f + 6.27f*i);
+            counter++;
+        }
+    }
+}
+
+BrowseScreen::~BrowseScreen() {
+    for (auto w : m_widgets) {
+        if (w) delete w;
+    }
+    m_widgets.clear();
+    m_buttons.clear();
+}
+
+/* Slider */
+
+void Slider::draw() {
+    // Draw slider bar
+    graphics::Brush br;
+    br.outline_width = 1.0f;
+    SETCOLOR(br.outline_color, 0.80f, 0.80f, 0.85f);
+    SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    graphics::drawLine(m_pos[0]-SLIDER_LENGTH/2.0f, m_pos[1], m_pos[0]+SLIDER_LENGTH/2.0f, m_pos[1], br);
+
+    // Draw slider rectangle
+    br.outline_opacity = 0.0f;
+    SETCOLOR(br.fill_color, 1.0f, 0.54f, .0f);
+    graphics::drawRect(m_rect_pos, m_pos[1], 0.1f, 0.4f, br);
+
+    br.fill_opacity = 0.4f * m_highlighted;
+    SETCOLOR(br.fill_color, 0.0f, 0.0f, 0.0f);
+    graphics::drawRect(m_rect_pos, m_pos[1], 0.1f, 0.4f, br);
+}
+
+void Slider::update() {
+
+}
+
+bool Slider::contains(float x, float y) {
+    return m_rect_pos-0.05f <= x && x <= m_rect_pos+0.05f && m_pos[1]-0.2f <= y && y <= m_pos[1]+0.2f;
+}
+
+void Slider::slide(float x) {
+    if (x < m_pos[0]-SLIDER_LENGTH/2.0f) {
+        m_rect_pos = m_pos[0]-SLIDER_LENGTH/2.0f;
+    } else if (x > m_pos[0]+SLIDER_LENGTH/2.0f) {
+        m_rect_pos = m_pos[0]+SLIDER_LENGTH/2.0f;
+    } else {
+        m_rect_pos = x;
+    }
+}
+
+int Slider::pos_to_value() {
+    if (m_rect_pos == m_pos[0] - SLIDER_LENGTH / 2.0f) return 1980;
+    if (m_rect_pos == m_pos[0] + SLIDER_LENGTH / 2.0f) return 2022;
+    return (int) 1980 + (m_rect_pos - m_pos[0] + SLIDER_LENGTH/2.0f)/0.05f;
 }
 
 
@@ -353,7 +542,7 @@ void MovieScreen::update() {
         }
     }
 
-    // Change to next or prev slide
+    // Close movie screen
     if (ms.button_left_pressed && cur_button) {
         if (cur_button->getText() == "Back") {
             APP()->setScreen(APP()->getPrevScreen());

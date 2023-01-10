@@ -12,6 +12,7 @@ class Movie {
     std::list<std::string> m_genre;
     std::string m_description;
     std::string m_image;
+    std::string m_shortcut;
 
 public:
     Movie(std::string t, int y, std::list<std::string> d,
@@ -20,7 +21,7 @@ public:
             m_title(t), m_year(y),
             m_directors(d), m_actors(a),
             m_genre(g), m_description(desc),
-            m_image(MOVIE_PATH+i) {}
+            m_shortcut(i) { m_image = MOVIE_PATH + i;}
 
     std::string getTitle() { return m_title; }
     int getYear() { return m_year; }
@@ -33,4 +34,5 @@ public:
     std::string getPoster() { return m_image+"p.png"; }
     std::string getScene1() { return m_image +"1.png"; }
     std::string getScene2() { return m_image +"2.png"; }
+    std::string getShortcut() { return m_shortcut; }
 };
