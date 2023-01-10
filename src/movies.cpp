@@ -27,7 +27,7 @@ std::string Movie::getGenre() {
     bool first = true;
     for (auto g : m_genre) {
         if (first) { str = g; first = false; continue; }
-        str += ",  " + g;
+        str += "  |  " + g;
     }
     return str;
 }

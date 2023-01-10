@@ -28,6 +28,7 @@ public:
     std::string getDirectors();
     std::string getActors();
     std::string getGenre();
+    std::list<std::string> getGenreList() { return m_genre; }
     std::string getDesc() { return m_description; }
     std::string getImg() { return m_image+".png"; }
     std::string getBanner() { return m_image+"b.png"; }

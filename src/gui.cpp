@@ -357,6 +357,17 @@ void BrowseScreen::init() {
     t->setText("To");
     t->init();
 
+    // Initialize Checkboxes
+    for (auto g : DB()->getGenres()) {
+        Checkbox* genre_button = new Checkbox();
+        m_widgets.push_front(genre_button);
+        m_buttons.push_front(genre_button);
+        genre_button->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 10.0f);
+        genre_button->setPosY(1.85f);
+        genre_button->setText(g);
+        break;
+    }
+
     // Initialize Movie Buttons
     int counter = 0;
     for (int i=0; i<2; i++) {
@@ -422,6 +433,22 @@ int Slider::pos_to_value() {
     if (m_rect_pos == m_pos[0] - SLIDER_LENGTH / 2.0f) return 1980;
     if (m_rect_pos == m_pos[0] + SLIDER_LENGTH / 2.0f) return 2022;
     return (int) 1980 + (m_rect_pos - m_pos[0] + SLIDER_LENGTH/2.0f)/0.05f;
+}
+
+
+/* Checkbox */
+
+void Checkbox::draw() {
+    graphics::Brush br;
+    graphics::drawText(m_pos[0], m_pos[1], 0.4f, m_text, br);
+}
+
+void Checkbox::update() {
+
+}
+
+bool Checkbox::contains(float x, float y) {
+    return false;
 }
 
 
@@ -499,16 +526,19 @@ void MovieScreen::draw() {
     SETCOLOR(br.outline_color, 1.0f, 1.0f, 1.0f);
     graphics::drawRect(CANVAS_WIDTH/8.0f, 2.0f*CANVAS_HEIGHT/5.0f, 4.375f, 6.25f, br);
 
-    // Draw movie information
+    // Draw movie title
     br.texture = "";
     br.outline_opacity = 0.0f;
     SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
     graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 1.25f, 0.8f, m->getTitle() + " (" + std::to_string(m->getYear())+")", br);
 
+    // Draw director, actors, gerne
     SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
     graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 2.0f, 0.4f, "Directed  by:  " + m->getDirectors(), br);
     graphics::drawText(CANVAS_WIDTH/8.0f + 2.8f, 2.0f*CANVAS_HEIGHT/5.0f + 2.75f, 0.4f, "Starring:  " + m->getActors(), br);
-    graphics::drawText(CANVAS_WIDTH/8.0f - 2.18525f, 2.0f*CANVAS_HEIGHT/5.0f + 3.875f, 0.4f, "Genre:  " + m->getGenre(), br);
+    graphics::drawText(CANVAS_WIDTH/8.0f - 2.18525f, 2.0f*CANVAS_HEIGHT/5.0f + 3.875f, 0.4f, m->getGenre(), br);
+
+    // Draw description
     graphics::drawText(CANVAS_WIDTH/8.0f - 2.18525f, 2.0f*CANVAS_HEIGHT/5.0f + 4.6f, 0.4f, m->getDesc(), br);
 
     // Draw movie scenes
