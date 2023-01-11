@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <set>
+#include <unordered_map>
 #include "movies.h"
 #include "moviedb.h"
 
@@ -97,6 +98,18 @@ public:
     ~Checkbox() {}
 };
 
+class Searchbar : public Button {
+protected:
+    std::string m_display_text;
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+    void write(std::string s);
+    Searchbar() {}
+    ~Searchbar() {}
+};
+
 /* Sidebar */
 
 class Sidebar : public Widget {
@@ -136,6 +149,7 @@ class BrowseScreen : public Widget {
     std::vector<Movie*> m_movies_from_range;
     std::vector<Movie*> m_movies_by_genre;
     std::vector<Movie*> m_results;
+    std::unordered_map<std::string, graphics::scancode_t> m_keys;
 
 public:
     void draw();
