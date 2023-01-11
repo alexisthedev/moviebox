@@ -259,6 +259,10 @@ void BrowseScreen::draw() {
     graphics::drawText(CANVAS_WIDTH/6.0f + 0.73f, 2.0f, 0.4f, "To: ", br);
     graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 5.0f, 2.0f, 0.4f, std::to_string(m_range_end), br);
 
+    // Draw searchbar info
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 9.5f, 1.0f, 0.4f, "               Title:", br);
+    graphics::drawText(CANVAS_WIDTH/6.0f + 5.0/9.0f + 9.5f, 2.0f, 0.4f, "Dir. / Act.:", br);
+
     int m = 0;
     // Show movies based on search results
     for (auto w : m_widgets) {
@@ -343,6 +347,27 @@ void BrowseScreen::update() {
         m_active_button = nullptr;
     }
 
+    // Change searchbar text
+    if (m_active_button && (dynamic_cast<Searchbar*>(m_active_button))) {
+        Searchbar* sb = dynamic_cast<Searchbar*>(m_active_button);
+        for (auto it=m_keys.begin(); it!=m_keys.end(); ++it) {
+            if (graphics::getKeyState(it->second)) {
+                sb->write(it->first);
+                sleep(125);
+            }
+        }
+    }
+
+    if (m_active_button && m_active_button->getText() == "Clear") {
+        for(auto w : m_widgets) {
+            delete w;
+        }
+        m_widgets.clear();
+        m_buttons.clear();
+        m_active_button = nullptr;
+        init();
+    }
+
     m_movies_from_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
     m_movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
     // Display movies based on filters
@@ -351,8 +376,6 @@ void BrowseScreen::update() {
         m_results = m_movies_from_range;
     } else {
         m_results.clear();
-        m_movies_from_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
-        m_movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
         for(auto m : m_movies_by_genre) {
             if(std::count(m_movies_from_range.begin(), m_movies_from_range.end(), m) != 0) {
                 m_results.push_back(m);
@@ -368,6 +391,7 @@ void BrowseScreen::update() {
 
 void BrowseScreen::init() {
     // Show all movies intially
+    m_active_genres.clear();
     m_range_start = 1980;
     m_range_end = 2022;
     m_results = DB()->getMoviesFromRange(m_range_start, m_range_end);
@@ -388,6 +412,36 @@ void BrowseScreen::init() {
     t->setPosY(1.85f);
     t->setText("To");
     t->init();
+
+    //Initialize Searchbars
+    Searchbar* sb_title =  new Searchbar();
+    m_widgets.push_front(sb_title);
+    m_buttons.push_front(sb_title);
+    sb_title->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 15.0f);
+    sb_title->setPosY(0.9f);
+    sb_title->setText("Title");
+
+    Searchbar* sb_dir =  new Searchbar();
+    m_widgets.push_front(sb_dir);
+    m_buttons.push_front(sb_dir);
+    sb_dir->setPosX(CANVAS_WIDTH/6.0f + 5.0/9.0f + 15.0f);
+    sb_dir->setPosY(0.9f + 1.0f);
+    sb_dir->setText("DirAct");
+
+
+    // Initialize key map
+    using namespace graphics;
+    m_keys = {{"A", SCANCODE_A}, {"B", SCANCODE_B}, {"C", SCANCODE_C},
+                {"D", SCANCODE_D}, {"E", SCANCODE_E}, {"F", SCANCODE_F},
+                {"G", SCANCODE_G}, {"H", SCANCODE_H}, {"I", SCANCODE_I},
+                {"J", SCANCODE_J}, {"K", SCANCODE_K}, {"L", SCANCODE_L},
+                {"M", SCANCODE_M}, {"N", SCANCODE_N}, {"O", SCANCODE_O},
+                {"P", SCANCODE_P}, {"Q", SCANCODE_Q}, {"R", SCANCODE_R},
+                {"S", SCANCODE_S}, {"T", SCANCODE_T}, {"U", SCANCODE_U},
+                {"V", SCANCODE_V}, {"W", SCANCODE_W}, {"X", SCANCODE_X},
+                {"Y", SCANCODE_Y}, {"Z", SCANCODE_Z}, {" ", SCANCODE_SPACE},
+                {"BACKSPACE", SCANCODE_BACKSPACE}};
+
 
     // Initialize Checkboxes
     int counter = 0;
@@ -414,6 +468,15 @@ void BrowseScreen::init() {
             counter++;
         }
     }
+
+    // Initialize clear filter button
+    SlideshowButton* cf = new SlideshowButton();
+    m_widgets.push_front(cf);
+    m_buttons.push_front(cf);
+    cf->setText("Clear");
+    cf->setPosX(CANVAS_WIDTH/6.0f + 0.73f + 1.825f*2.0f + 3.675f*4.0f + 0.73f + 0.5f);
+    cf->setPosY(CANVAS_HEIGHT - 3.0f);
+    cf->setIcon(ASSET_PATH + std::string("clear.png"));
 }
 
 BrowseScreen::~BrowseScreen() {
@@ -491,6 +554,43 @@ void Checkbox::update() {
 
 bool Checkbox::contains(float x, float y) {
     return (x >= CANVAS_WIDTH/6.0f + 0.73f + 1.825f*2.0f + 3.675f*4.0f + 0.73f) && m_pos[1]-0.7f < y && y < m_pos[1]+0.3f;
+}
+
+/* Searchbar */
+
+void Searchbar::draw() {
+    graphics::Brush br;
+    br.fill_opacity = 1.0f;
+    br.outline_opacity = 0.0f;
+    if (m_highlighted) {
+        SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    } else {
+        SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
+    }
+
+    graphics::drawRect(m_pos[0], m_pos[1], 6.0f, 0.7f, br);
+    SETCOLOR(br.fill_color, .0f, .0f, .0f);
+    graphics::drawText(m_pos[0]- 2.8f, m_pos[1]+0.2f, 0.4f, m_display_text, br);
+}
+
+void Searchbar::update() {
+
+}
+
+bool Searchbar::contains(float x, float y) {
+    return m_pos[0] - 3.0f <= x && x <= m_pos[0] + 3.0f && m_pos[1] - 0.35f <= y && y <= m_pos[1] + 0.35f;
+}
+
+void Searchbar::write(std::string s) {
+    if(s!="BACKSPACE" && m_display_text.size()<18) {
+        m_display_text += s;
+    } else if (s == "BACKSPACE") {
+        if(m_display_text.size() == 1) {
+            m_display_text = "";
+        } else {
+            m_display_text = m_display_text.substr(0, m_display_text.size()-1);
+        }
+    }
 }
 
 
