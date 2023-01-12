@@ -2,6 +2,107 @@
 #include "defines.h"
 #include "moviedb.h"
 
+/* Welcome Screen */
+
+void WelcomeScreen::draw() {
+    if (APP()->getScreen() != "Welcome") return;
+
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+    br.texture = ASSET_PATH + std::string("watching.png");
+    graphics::drawRect(m_pos[0], CANVAS_HEIGHT/2.0f - 4.0f, 6.5f, 2.5f, br);
+
+    for (auto w : m_widgets) {
+        w->draw();
+    }
+}
+
+void WelcomeScreen::update() {
+    if (APP()->getScreen() != "Welcome") return;
+
+    // Get mouse position
+    graphics::MouseState ms;
+    graphics::getMouseState(ms);
+
+    // Convert mouse cords to canvas cords
+    float mx = graphics::windowToCanvasX(ms.cur_pos_x);
+    float my = graphics::windowToCanvasY(ms.cur_pos_y);
+
+    // Highlight button
+    UserButton* cur_button = nullptr;
+    for (auto b : m_buttons) {
+        if (b->contains(mx, my)) {
+            b->setHighlight(true);
+            cur_button = b;
+        } else {
+            b->setHighlight(false);
+        }
+    }
+
+    // Activate movie
+    if (ms.button_left_pressed && cur_button) {
+        m_active_button = cur_button;
+        m_active_button->setActive(true);
+        for (auto b : m_buttons) {
+            if (b != m_active_button) {
+                b->setActive(false);
+            }
+        }
+    }
+
+    if (m_active_button) {
+        APP()->setScreen("Home");
+        APP()->setUser(m_active_button->getUser());
+    }
+
+    for (auto w : m_widgets) {
+        w->update();
+    }
+}
+
+void WelcomeScreen::init() {
+    User* users[] = {new User("Alex", "alexuser"), new User("Katerina", "kateuser"), new User("Guest", "guestuser")};
+    // Initialize Buttons
+    for (int i=0; i<3; i++) {
+        UserButton* ub = new UserButton();
+        m_widgets.push_front((Widget*) ub);
+        m_buttons.push_front(ub);
+        ub->setText("Large");
+        ub->setUser(users[i]);
+        ub->setPosX(6.5f + 7.5f*i);
+        ub->setPosY(CANVAS_HEIGHT/2.0f);
+    }
+}
+
+WelcomeScreen::~WelcomeScreen() {
+    for (auto w : m_widgets) {
+        delete w;
+    }
+    m_widgets.clear();
+    m_buttons.clear();
+}
+
+/* User Button */
+
+void UserButton::draw() {
+    graphics::Brush br;
+    br.outline_opacity = 1.0f * m_highlighted;
+    br.outline_width = 2.0f;
+    br.texture = m_user->getProfilePic();
+    graphics::drawRect(m_pos[0], m_pos[1], 5.0f, 5.0f, br);
+    SETCOLOR(br.fill_color, 0.80f, 0.80f, 0.85f);
+    graphics::drawText(m_pos[0]-0.8f, m_pos[1] + 3.2f, 0.6f, m_user->getName(), br);
+}
+
+void UserButton::update() {
+
+}
+
+bool UserButton::contains(float x, float y) {
+    return m_pos[0] - 2.5f <= x && x <= m_pos[0] + 2.5f &&
+            m_pos[1] - 2.5f <= y && y <= m_pos[1] + 2.5f;
+}
+
 /* Home Screen */
 
 void HomeScreen::draw() {

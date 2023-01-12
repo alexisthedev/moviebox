@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "movies.h"
 #include "moviedb.h"
+#include "user.h"
 
 class Widget {
 protected:
@@ -75,6 +76,17 @@ public:
     Movie* getMovie() { return m_movie; }
 };
 
+class UserButton : public IconButton {
+    User* m_user = nullptr;
+
+public:
+    void draw();
+    void update();
+    bool contains(float x, float y);
+    void setUser(User* u) { m_user = u; }
+    User* getUser() { return m_user; }
+};
+
 class Slider : public Button {
     float m_rect_pos;
 
@@ -126,6 +138,19 @@ public:
 };
 
 /* Screen Widgets */
+
+class WelcomeScreen : public Widget {
+    std::list<Widget*> m_widgets;
+    std::list<UserButton*> m_buttons;
+    UserButton* m_active_button = nullptr;
+
+public:
+    void draw();
+    void update();
+    void init();
+    WelcomeScreen() {}
+    ~WelcomeScreen();
+};
 
 class HomeScreen : public Widget {
     std::list<Widget*> m_widgets;

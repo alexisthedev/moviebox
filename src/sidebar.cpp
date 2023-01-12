@@ -2,7 +2,7 @@
 #include "app.h"
 
 void Sidebar::draw() {
-    if (APP()->getScreen() == "Movie") return;
+    if (APP()->getScreen() == "Movie" || APP()->getScreen() == "Welcome") return;
 
     // draw sidebar rectangle
     graphics::Brush br;
@@ -27,7 +27,7 @@ void Sidebar::draw() {
 }
 
 void Sidebar::update() {
-    if (APP()->getScreen() == "Movie") return;
+    if (APP()->getScreen() == "Movie" || APP()->getScreen() == "Welcome") return;
 
     // Get mouse position
     graphics::MouseState ms;
