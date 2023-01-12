@@ -11,7 +11,7 @@ void App::draw() {
 
     if (m_state == STATE_INIT) {
         graphics::setFont(ASSET_PATH + std::string("MontserratMedium.ttf"));
-        graphics::drawText(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 0.5f, "Loading assets...", br);
+        graphics::drawText(CANVAS_WIDTH/2-0.8f, CANVAS_HEIGHT/2, 0.5f, "Loading...", br);
         m_state = STATE_LOADING;
         return;
     }

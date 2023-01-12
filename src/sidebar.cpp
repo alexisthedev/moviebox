@@ -4,14 +4,14 @@
 void Sidebar::draw() {
     if (APP()->getScreen() == "Movie" || APP()->getScreen() == "Welcome") return;
 
-    // draw sidebar rectangle
+    // Draw sidebar rectangle
     graphics::Brush br;
     SETCOLOR(br.fill_color, 0.08f, 0.12f, 0.20f);
     br.fill_opacity = 0.4f;
     br.outline_opacity = 0.0f;
     graphics::drawRect(m_pos[0], m_pos[1], CANVAS_WIDTH/6.0f, CANVAS_HEIGHT, br);
 
-    // draw sidebar right outline
+    // Draw sidebar right outline
     graphics::Brush reticle;
     SETCOLOR(reticle.fill_color, 0.47f, 0.47f, 0.47f);
     SETCOLOR(reticle.outline_color, 0.47f, 0.47f, 0.47f);
@@ -20,7 +20,16 @@ void Sidebar::draw() {
     reticle.outline_width = 2.0f;
     graphics::drawLine(CANVAS_WIDTH/6.0f, CANVAS_HEIGHT, CANVAS_WIDTH/6.0f, .0f, reticle);
 
-    // draw sidebar buttons
+    // Draw user
+    graphics::Brush paint;
+    paint.fill_opacity = 1.0f;
+    paint.outline_opacity = 0.0f;
+    paint.texture = APP()->getUser()->getProfilePic();
+    graphics::drawRect(m_pos[0]-1.5f, 1.0f, 0.8f, 0.8f, paint);
+    SETCOLOR(paint.fill_color, 1.0f, 1.0f, 1.0f);
+    graphics::drawText(m_pos[0]-0.75f, 1.2f, 0.5f, APP()->getUser()->getName(), paint);
+
+    // Draw sidebar buttons
     for (auto b : m_buttons) {
         b->draw();
     }
@@ -50,7 +59,7 @@ void Sidebar::update() {
 
     // Activate button
     if (ms.button_left_pressed && cur_button) {
-        if (cur_button->getText() == "Log Out") {
+        if (cur_button->getText() == "Exit") {
             graphics::stopMessageLoop();
         }
 
@@ -93,15 +102,15 @@ void Sidebar::init() {
     // Set buttons position inside sidebar
     int i=0;
     for (auto b : m_buttons) {
-        b->setPosX(getPosX());
-        b->setPosY(getPosY()-4.0f + i*2.0f);
+        b->setPosX(m_pos[0]);
+        b->setPosY(m_pos[1]-4.0f + i*2.0f);
         i++;
     }
 
     // Initialize logout button
     SidebarButton* logout = new SidebarButton();
-    logout->setText("Log Out");
-    logout->setIcon(ASSET_PATH + std::string("logout.png"));
+    logout->setText("Exit");
+    logout->setIcon(ASSET_PATH + std::string("exit.png"));
     logout->setPosX(CANVAS_WIDTH/12.0f);
     logout->setPosY(CANVAS_HEIGHT - 2.0f);
     m_buttons.push_back(logout);
