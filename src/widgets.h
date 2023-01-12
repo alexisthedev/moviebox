@@ -106,6 +106,7 @@ public:
     void update();
     bool contains(float x, float y);
     void write(std::string s);
+    std::string getSearch() { return m_display_text; }
     Searchbar() {}
     ~Searchbar() {}
 };
@@ -146,8 +147,8 @@ class BrowseScreen : public Widget {
     std::set<std::string> m_active_genres;
     int m_range_start;
     int m_range_end;
-    std::vector<Movie*> m_movies_from_range;
-    std::vector<Movie*> m_movies_by_genre;
+    std::string m_active_title_search;
+    std::string m_active_diract_search;
     std::vector<Movie*> m_results;
     std::unordered_map<std::string, graphics::scancode_t> m_keys;
 

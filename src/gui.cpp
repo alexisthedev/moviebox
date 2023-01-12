@@ -356,8 +356,57 @@ void BrowseScreen::update() {
                 sleep(125);
             }
         }
+        m_active_title_search = (sb->getText() == "Title") ? sb->getSearch() : m_active_title_search;
+        m_active_diract_search = (sb->getText() == "DirAct") ? sb->getSearch() : m_active_diract_search;
     }
 
+    // Display movies based on filters
+    m_results.clear();
+    std::vector<Movie*> movies_by_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
+    if(!m_active_genres.empty()) {
+        // If all genre buttons are unchecked show all genres
+        // Else filter both by year and by genre
+        std::vector<Movie*> movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
+        for(auto m : movies_by_genre) {
+            if(std::count(movies_by_range.begin(), movies_by_range.end(), m) != 0) {
+                m_results.push_back(m);
+            }
+        }
+    } else {
+        m_results = movies_by_range;
+    }
+
+    // Now keep the already filtered movies and filter again by search terms
+    std::vector<Movie*> movies_from_search = m_results;
+
+    if (m_active_title_search != "") {
+        m_results.clear();
+        for (auto m : movies_from_search) {
+            std::string title = m->getTitle();
+            for(auto &c : title) c = (char)toupper(c);
+            if (title.find(m_active_title_search) != std::string::npos) {
+                m_results.push_back(m);
+            }
+        }
+    }
+
+    // Re-filter by director/actor
+    if (m_active_diract_search != "") {
+        movies_from_search = m_results;
+        m_results.clear();
+        for (auto m : movies_from_search) {
+            std::string term = m->getDirectors();
+            std::string term2 = m->getActors();
+            for (auto &c : term) c = (char)toupper(c);
+            for (auto &c : term2) c = (char)toupper(c);
+            if (term.find(m_active_diract_search) != std::string::npos ||
+                    term2.find(m_active_diract_search) != std::string::npos) {
+                m_results.push_back(m);
+            }
+        }
+    }
+
+    // Clear filters
     if (m_active_button && m_active_button->getText() == "Clear") {
         for(auto w : m_widgets) {
             delete w;
@@ -365,22 +414,9 @@ void BrowseScreen::update() {
         m_widgets.clear();
         m_buttons.clear();
         m_active_button = nullptr;
+        m_active_diract_search = "";
+        m_active_title_search = "";
         init();
-    }
-
-    m_movies_from_range = DB()->getMoviesFromRange(m_range_start, m_range_end);
-    m_movies_by_genre = DB()->getMoviesByGenre(m_active_genres);
-    // Display movies based on filters
-    if(m_active_genres.empty()) {
-        // Display no specific movies based on genre
-        m_results = m_movies_from_range;
-    } else {
-        m_results.clear();
-        for(auto m : m_movies_by_genre) {
-            if(std::count(m_movies_from_range.begin(), m_movies_from_range.end(), m) != 0) {
-                m_results.push_back(m);
-            }
-        }
     }
 
     // Call update on dependent members
