@@ -17,12 +17,7 @@ inline void sleep(int ms) {
 #define MOVIE_PATH "assets/movies/"
 
 #define SETCOLOR(c, r, g, b) {c[0]=r; c[1]=g; c[2]=b;}
-#define RAND0TO1() (rand()/(float)RAND_MAX)
+
 #define APP() App::getInstance()
 #define DB() MovieDB::getInstance()
 
-inline float distance(float x1, float y1, float x2, float y2) {
-    float dx = x1 - x2;
-    float dy = y1 - y2;
-    return sqrtf(dx*dx + dy*dy);
-}
