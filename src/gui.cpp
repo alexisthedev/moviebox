@@ -830,6 +830,8 @@ void MovieScreen::draw() {
 }
 
 void MovieScreen::update() {
+    if (APP()->getScreen() != "Movie") return;
+
     // Get mouse position
     graphics::MouseState ms;
     graphics::getMouseState(ms);
