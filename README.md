@@ -4,6 +4,14 @@
 
 ## Screenshots
 
+![Screenshot_20230204_114708](https://user-images.githubusercontent.com/97695022/216790958-090944ae-26bd-4ea7-b048-d95d4ca81954.png)
+
+![Screenshot_20230204_114733](https://user-images.githubusercontent.com/97695022/216790973-e27db8ba-e135-48b1-82ce-b06e209d7e57.png)
+
+![Screenshot_20230204_114750](https://user-images.githubusercontent.com/97695022/216790975-1d80dd25-a24c-4bcb-a637-bad056af837f.png)
+
+![Screenshot_20230204_114833](https://user-images.githubusercontent.com/97695022/216790983-0ca187b9-79be-4fb6-867f-394e297cd2c7.png)
+
 ## Description
 
 Using the SGG library, we created a film library app called "MovieBox".
